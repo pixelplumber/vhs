@@ -1,8 +1,10 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Random;
+
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -22,6 +24,7 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use TYPO3\CMS\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
  * ### Random: String Generator
@@ -33,11 +36,11 @@
  * Has built-in insurance that first character of random string is
  * an alphabetic character (allowing safe use as DOM id for example).
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
  * @subpackage ViewHelpers\Random
  */
-class Tx_Vhs_ViewHelpers_Random_StringViewHelper extends Tx_Fluid_Core_ViewHelper_AbstractViewHelper {
+class StringViewHelper extends AbstractViewHelper {
 
 	/**
 	 * @param integer $length
@@ -51,13 +54,10 @@ class Tx_Vhs_ViewHelpers_Random_StringViewHelper extends Tx_Fluid_Core_ViewHelpe
 		$maximumLength = intval($maximumLength);
 		$length = ($minimumLength != $maximumLength ? rand($minimumLength, $maximumLength) : ($length !== NULL ? $length : $minimumLength));
 		$string = '';
-		for ($i = 0; $i < $length && $length > 0; $i++) {
+		while ($length > strlen($string)) {
 			$randomIndex = rand(0, strlen($characters));
 			$string .= $characters{$randomIndex};
 		}
-		$characters = preg_replace('/([^a-z]+)/i', '', $characters);
-		$randomIndex = rand(0, strlen($characters) - 1);
-		$string{0} = $characters{$randomIndex};
 		return $string;
 	}
 

@@ -1,8 +1,10 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Render;
+
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -34,9 +36,9 @@
  * this can be done (from any extension, not just "foo")
  *
  *     <v:render.template
- * 	    file="EXT:foo/Resources/Templates/Action/Show.html"
+ * 	    file="EXT:foo/Resources/Private/Templates/Action/Show.html"
  *      variables="{object: customLoadedObject}"
- *      paths="{v:var.typoscript(path: 'plugin.tx_foo.view')}"
+ *      paths="{v:variable.typoscript(path: 'plugin.tx_foo.view')}"
  *      format="xml" />
  *
  * Which would render the "show" action's template from
@@ -66,11 +68,13 @@
  * completely isolated rendering identical to that which takes
  * place when rendering an Extbase plugin's content object.
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
  * @subpackage ViewHelpers\Render
  */
-class Tx_Vhs_ViewHelpers_Render_TemplateViewHelper extends Tx_Vhs_ViewHelpers_Render_AbstractRenderViewHelper {
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
+class TemplateViewHelper extends AbstractRenderViewHelper {
 
 	/**
 	 * Renders a template using custom variables, format and paths
@@ -78,25 +82,27 @@ class Tx_Vhs_ViewHelpers_Render_TemplateViewHelper extends Tx_Vhs_ViewHelpers_Re
 	 * @param string $file Path to template file, EXT:myext/... paths supported
 	 * @param array $variables Optional array of template variables when rendering
 	 * @param string $format Optional format of the template(s) being rendered
-	 * @param string $paths Optional array (plugin.tx_myext.view style) of paths
+	 * @param string $paths Optional array (plugin.tx_myext.view style) of paths, EXT:mypath/... paths supported
 	 * @return string
 	 */
 	public function render($file = NULL, $variables = array(), $format = NULL, $paths = NULL) {
-		if ($file === NULL) {
+		if (NULL === $file) {
 			$file = $this->renderChildren();
 		}
-		$file = t3lib_div::getFileAbsFileName($file);
+		$file = GeneralUtility::getFileAbsFileName($file);
 		$view = $this->getPreparedView();
 		$view->setTemplatePathAndFilename($file);
 		$view->assignMultiple($variables);
-		if ($format !== NULL) {
+		if (NULL !== $format) {
 			$view->setFormat($format);
 		}
-		if (is_array($paths) === TRUE) {
-			if (isset($paths['layoutRootPath']) === TRUE) {
+		if (TRUE === is_array($paths)) {
+			if (TRUE === isset($paths['layoutRootPath'])) {
+				$paths['layoutRootPath'] = 0 === strpos($paths['layoutRootPath'], 'EXT:') ? GeneralUtility::getFileAbsFilename($paths['layoutRootPath']) : $paths['layoutRootPath'];
 				$view->setLayoutRootPath($paths['layoutRootPath']);
 			}
-			if (isset($paths['partialRootPath']) === TRUE) {
+			if (TRUE === isset($paths['partialRootPath'])) {
+				$paths['partialRootPath'] = 0 === strpos($paths['partialRootPath'], 'EXT:') ? GeneralUtility::getFileAbsFilename($paths['partialRootPath']) : $paths['partialRootPath'];
 				$view->setPartialRootPath($paths['partialRootPath']);
 			}
 		}

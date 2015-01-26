@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\System;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -23,6 +24,8 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  * ************************************************************* */
 
+use TYPO3\CMS\Fluid\Core\ViewHelper\AbstractViewHelper;
+
 /**
  * ### System: UNIX Timestamp
  *
@@ -32,11 +35,11 @@
  *     <!-- adds exactly one hour to a DateTime and formats it -->
  *     <f:format.date format="H:i">{dateTime.timestamp -> v:math.sum(b: 3600)}</f:format.date>
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
  * @subpackage ViewHelpers\System
  */
-class Tx_Vhs_ViewHelpers_System_TimestampViewHelper extends Tx_Fluid_Core_ViewHelper_AbstractViewHelper {
+class TimestampViewHelper extends AbstractViewHelper {
 
 	/**
 	 * @return integer

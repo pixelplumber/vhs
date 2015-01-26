@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Media\Image;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Björn Fromme <fromme@dreipunktnull.com>, dreipunktnull
+ *  (c) 2014 Björn Fromme <fromme@dreipunktnull.com>, dreipunktnull
  *
  *  All rights reserved
  *
@@ -30,16 +31,14 @@
  * @package Vhs
  * @subpackage ViewHelpers\Media\Image
  */
-class Tx_Vhs_ViewHelpers_Media_Image_MimetypeViewHelper extends Tx_Vhs_ViewHelpers_Media_Image_AbstractImageInfoViewHelper {
+class MimetypeViewHelper extends AbstractImageInfoViewHelper {
 
 	/**
 	 * @return string
 	 */
 	public function render() {
-
 		$info = $this->getInfo();
-
-		return isset($info['type']) ? $info['type'] : '';
+		return TRUE === isset($info['type']) ? $info['type'] : '';
 	}
 
 }

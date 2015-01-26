@@ -1,8 +1,10 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Page;
+
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due, Wildside A/S <claus@wildside.dk>
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -22,6 +24,7 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  * ************************************************************* */
+use FluidTYPO3\Vhs\ViewHelpers\Asset\AbstractAssetViewHelper;
 
 /**
  * ViewHelper used to place header blocks in document footer
@@ -29,15 +32,15 @@
  * @package Vhs
  * @subpackage ViewHelpers\Page
  */
-class Tx_Vhs_ViewHelpers_Page_FooterViewHelper extends Tx_Vhs_ViewHelpers_Asset_AbstractAssetViewHelper {
+class FooterViewHelper extends AbstractAssetViewHelper {
 
 	/**
 	 * Render method
 	 *
 	 * @return void
-	*/
+	 */
 	public function render() {
-		if (TYPO3_MODE == 'BE') {
+		if ('BE' === TYPO3_MODE) {
 			return;
 		}
 		$content = $this->getContent();

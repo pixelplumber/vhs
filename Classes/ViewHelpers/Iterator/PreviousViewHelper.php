@@ -1,8 +1,10 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Iterator;
+
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -22,15 +24,16 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use FluidTYPO3\Vhs\ViewHelpers\Condition\Iterator\ContainsViewHelper;
 
 /**
  * Returns previous element in array $haystack from position of $needle
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
  * @subpackage ViewHelpers\Iterator
  */
-class Tx_Vhs_ViewHelpers_Iterator_PreviousViewHelper extends Tx_Vhs_ViewHelpers_Iterator_ContainsViewHelper {
+class PreviousViewHelper extends ContainsViewHelper {
 
 	/**
 	 * Render method
@@ -39,7 +42,7 @@ class Tx_Vhs_ViewHelpers_Iterator_PreviousViewHelper extends Tx_Vhs_ViewHelpers_
 	 */
 	public function render() {
 		parent::render();
-		return $this->getNeedleAtIndex($this->evaluation !== FALSE ? $this->evaluation - 1 : - 1);
+		return $this->getNeedleAtIndex($this->evaluation !== FALSE ? $this->evaluation - 1 : -1);
 	}
 
 }

@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Uri;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2013 Björn Fromme <fromme@dreipunktnull.com>, dreipunktnull
+ *  (c) 2014 Björn Fromme <fromme@dreipunktnull.com>, dreipunktnull
  *
  *  All rights reserved
  *
@@ -22,8 +23,11 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  * ************************************************************* */
+use FluidTYPO3\Vhs\ViewHelpers\Media\Image\AbstractImageViewHelper;
 
 /**
+ * ### Uri: Image
+ *
  * Returns the relative or absolute URI for the image resource
  * or it's derivate if differing dimesions are provided.
  *
@@ -31,7 +35,7 @@
  * @package Vhs
  * @subpackage ViewHelpers\Uri
  */
-class Tx_Vhs_ViewHelpers_Uri_ImageViewHelper extends Tx_Vhs_ViewHelpers_Media_Image_AbstractImageViewHelper {
+class ImageViewHelper extends AbstractImageViewHelper {
 
 	/**
 	 * Render method

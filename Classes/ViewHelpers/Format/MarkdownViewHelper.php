@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Format;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -23,6 +24,10 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  * ************************************************************* */
 
+use TYPO3\CMS\Core\Cache\Frontend\StringFrontend;
+use TYPO3\CMS\Fluid\Core\ViewHelper\AbstractViewHelper;
+use TYPO3\CMS\Fluid\Core\ViewHelper\Exception;
+
 /**
  * Markdown Transformation ViewHelper
  *
@@ -34,16 +39,18 @@
  * - accept input from STDIN
  * - output to STDOUT
  * - place errors in STDERR
+ * - be executable according to `open_basedir` and others
+ * - exist within (one or more of) TYPO3's configured executable paths
  *
  * In other words, *NIX standard behavior must be used.
  *
  * See: http://daringfireball.net/projects/markdown/
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
  * @subpackage ViewHelpers\Format
  */
-class Tx_Vhs_ViewHelpers_Format_MarkdownViewHelper extends Tx_Fluid_Core_ViewHelper_AbstractViewHelper {
+class MarkdownViewHelper extends AbstractViewHelper {
 
 	/**
 	 * @var boolean
@@ -56,32 +63,57 @@ class Tx_Vhs_ViewHelpers_Format_MarkdownViewHelper extends Tx_Fluid_Core_ViewHel
 	protected $markdownExecutablePath;
 
 	/**
+	 * @var StringFrontend
+	 */
+	protected $cache;
+
+	/**
+	 * @return void
+	 */
+	public function initialize() {
+		$this->cache = $GLOBALS['typo3CacheManager']->getCache('vhs_markdown');
+	}
+
+	/**
 	 * @param string $text
 	 * @param boolean $trim
 	 * @param boolean $htmlentities
+	 * @throws Exception
 	 * @return string
 	 */
 	public function render($text = NULL, $trim = TRUE, $htmlentities = FALSE) {
-		$this->markdownExecutablePath = trim(shell_exec('which markdown'));
-		if (is_executable($this->markdownExecutablePath) === FALSE) {
-			throw new Exception('Use of Markdown requires the "markdown" shell utility to be installed an accessible; this' .
-				' binary could not be found in any of your configured paths available to this script', 1350511561);
-		}
-		if ($text === NULL) {
+		if (NULL === $text) {
 			$text = $this->renderChildren();
 		}
-		if ($trim) {
+		if (NULL === $text) {
+			return NULL;
+		}
+
+		$cacheIdentifier = sha1($text);
+		if (TRUE === $this->cache->has($cacheIdentifier)) {
+			return $this->cache->get($cacheIdentifier);
+		}
+
+		$this->markdownExecutablePath = \TYPO3\CMS\Core\Utility\CommandUtility::getCommand('markdown');
+		if (FALSE === is_executable($this->markdownExecutablePath)) {
+			throw new Exception('Use of Markdown requires the "markdown" shell utility to be installed ' .
+				'and accessible; this binary could not be found in any of your configured paths available to this script', 1350511561);
+		}
+		if (TRUE === (boolean) $trim) {
 			$text = trim($text);
 		}
-		if ($htmlentities) {
+		if (TRUE === (boolean) $htmlentities) {
 			$text = htmlentities($text);
 		}
 		$transformed = $this->transform($text);
+		$this->cache->set($cacheIdentifier, $transformed);
 		return $transformed;
 	}
 
 	/**
 	 * @param string $text
+	 * @throws Exception
+	 * @return string
 	 */
 	public function transform($text) {
 		$descriptorspec = array(
@@ -107,7 +139,7 @@ class Tx_Vhs_ViewHelpers_Format_MarkdownViewHelper extends Tx_Fluid_Core_ViewHel
 
 		$exitCode = proc_close($process);
 
-		if (trim($errors) !== '') {
+		if ('' !== trim($errors)) {
 			throw new Exception('There was an error while executing ' . $this->markdownExecutablePath . '. The return code was ' .
 				$exitCode . ' and the message reads: ' . $errors, 1350514144);
 		}

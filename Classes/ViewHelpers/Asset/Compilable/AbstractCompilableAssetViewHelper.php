@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Asset\Compilable;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2013 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -27,13 +28,13 @@
  * Base class for Assets which must be compiled by an
  * AssetCompiler.
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
- * @subpackage ViewHelpers\Asset
+ * @subpackage ViewHelpers\Asset\Compilable
  */
-abstract class Tx_Vhs_ViewHelpers_Asset_Compilable_AbstractCompilableAssetViewHelper
-	extends Tx_Vhs_ViewHelpers_Asset_AbstractAssetViewHelper
-	implements Tx_Vhs_ViewHelpers_Asset_Compilable_CompilableAssetInterface {
+abstract class AbstractCompilableAssetViewHelper
+	extends \FluidTYPO3\Vhs\ViewHelpers\Asset\AbstractAssetViewHelper
+	implements CompilableAssetInterface {
 
 	/**
 	 * Target compiler class name. Override this with

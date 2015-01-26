@@ -1,8 +1,10 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Page;
+
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -22,23 +24,25 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  * ************************************************************* */
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
  * Returns a full, absolute URL to this page with all arguments
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
  * @subpackage ViewHelpers\Page
  */
-class Tx_Vhs_ViewHelpers_Page_AbsoluteUrlViewHelper extends Tx_Fluid_Core_ViewHelper_AbstractViewHelper {
+class AbsoluteUrlViewHelper extends AbstractViewHelper {
 
 	/**
 	 * @return string
 	 */
 	public function render() {
-		$url = t3lib_div::getIndpEnv('TYPO3_REQUEST_URL');
-		if (!t3lib_div::isFirstPartOfStr($url, t3lib_div::getIndpEnv('TYPO3_SITE_URL'))) {
-			$url =  t3lib_div::getIndpEnv('TYPO3_SITE_URL') . $url;
+		$url = GeneralUtility::getIndpEnv('TYPO3_REQUEST_URL');
+		if (0 !== strpos($url, GeneralUtility::getIndpEnv('TYPO3_SITE_URL'))) {
+			$url = GeneralUtility::getIndpEnv('TYPO3_SITE_URL') . $url;
 		}
 		return $url;
 	}

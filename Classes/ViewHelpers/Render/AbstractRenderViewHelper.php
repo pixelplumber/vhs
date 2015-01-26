@@ -1,8 +1,10 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Render;
+
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -29,23 +31,41 @@
  * If errors occur they can be graciously ignored and
  * replaced by a small error message or the error itself.
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
  * @subpackage ViewHelpers\Render
  */
-abstract class Tx_Vhs_ViewHelpers_Render_AbstractRenderViewHelper extends Tx_Fluid_Core_ViewHelper_AbstractViewHelper {
+use TYPO3\CMS\Fluid\Core\ViewHelper\AbstractViewHelper;
+use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
+use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
+
+abstract class AbstractRenderViewHelper extends AbstractViewHelper {
 
 	/**
-	 * @var Tx_Extbase_Object_ObjectManagerInterface
+	 * @var \TYPO3\CMS\Extbase\Object\ObjectManagerInterface
 	 */
 	protected $objectManager;
 
 	/**
-	 * @param Tx_Extbase_Object_ObjectManagerInterface $objectManager
+	 * @var \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface
+	 */
+	protected $configurationManager;
+
+	/**
+	 * @param \TYPO3\CMS\Extbase\Object\ObjectManagerInterface $objectManager
 	 * @return void
 	 */
-	public function injectObjectManager(Tx_Extbase_Object_ObjectManagerInterface $objectManager) {
+	public function injectObjectManager(ObjectManagerInterface $objectManager) {
 		$this->objectManager = $objectManager;
+	}
+
+	/**
+	 * @param \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface $configurationManager
+	 * @return void
+	 */
+	public function injectConfigurationManager(ConfigurationManagerInterface $configurationManager) {
+		$this->configurationManager = $configurationManager;
 	}
 
 	/**
@@ -64,14 +84,14 @@ abstract class Tx_Vhs_ViewHelpers_Render_AbstractRenderViewHelper extends Tx_Flu
 	protected function getPreparedNamespaces() {
 		$namespaces = array();
 		foreach ((array) $this->arguments['namespaces'] as $namespaceIdentifier => $namespace) {
-			$addedOverriddenNamespace = '{namespace ' . $namespaceIdentifier . '=' . $namespace . ')';
+			$addedOverriddenNamespace = '{namespace ' . $namespaceIdentifier . '=' . $namespace . '}';
 			array_push($namespaces, $addedOverriddenNamespace);
 		}
 		return $namespaces;
 	}
 
 	/**
-	 * @return Tx_Fluid_View_StandaloneView
+	 * @return \TYPO3\CMS\Fluid\View\StandaloneView
 	 */
 	protected function getPreparedClonedView() {
 		$view = $this->getPreparedView();
@@ -82,22 +102,23 @@ abstract class Tx_Vhs_ViewHelpers_Render_AbstractRenderViewHelper extends Tx_Flu
 	}
 
 	/**
-	 * @return Tx_Fluid_View_StandaloneView
+	 * @return \TYPO3\CMS\Fluid\View\StandaloneView
 	 */
 	protected function getPreparedView() {
-		/** @var $view Tx_Fluid_View_StandaloneView */
-		$view = $this->objectManager->create('Tx_Fluid_View_StandaloneView');
+		/** @var $view \TYPO3\CMS\Fluid\View\StandaloneView */
+		$view = $this->objectManager->get('TYPO3\CMS\Fluid\View\StandaloneView');
 		return $view;
 	}
 
 	/**
-	 * @param Tx_Extbase_MVC_View_ViewInterface $view
+	 * @param \TYPO3\CMS\Extbase\Mvc\View\ViewInterface $view
+	 * @throws \Exception
 	 * @return string
 	 */
-	protected function renderView(Tx_Extbase_MVC_View_ViewInterface $view) {
+	protected function renderView(ViewInterface $view) {
 		try {
 			$content = $view->render();
-		} catch (Exception $error) {
+		} catch (\Exception $error) {
 			if (!$this->arguments['graceful']) {
 				throw $error;
 			}

@@ -1,8 +1,10 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Once;
+
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -38,17 +40,17 @@
  * means you can utilize the f:then and f:else child nodes as
  * well as the "then" and "else" arguments.
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
  * @subpackage ViewHelpers\Once
  */
-class Tx_Vhs_ViewHelpers_Once_CookieViewHelper extends Tx_Vhs_ViewHelpers_Once_AbstractOnceViewHelper {
+class CookieViewHelper extends AbstractOnceViewHelper {
 	/**
 	 * @return void
 	 */
 	protected function storeIdentifier() {
 		$identifier = $this->getIdentifier();
-		$domain = isset($this->arguments['lockToDomain']) && $this->arguments['lockToDomain'] ? $_SERVER['HTTP_HOST'] : NULL;
+		$domain = TRUE === isset($this->arguments['lockToDomain']) && TRUE === $this->arguments['lockToDomain'] ? $_SERVER['HTTP_HOST'] : NULL;
 		setcookie($identifier, '1', time() + $this->arguments['ttl'], NULL, $domain);
 	}
 
@@ -57,7 +59,7 @@ class Tx_Vhs_ViewHelpers_Once_CookieViewHelper extends Tx_Vhs_ViewHelpers_Once_A
 	 */
 	protected function assertShouldSkip() {
 		$identifier = $this->getIdentifier();
-		return (isset($_COOKIE[$identifier]) === TRUE);
+		return (TRUE === isset($_COOKIE[$identifier]));
 	}
 
 	/**
@@ -65,8 +67,8 @@ class Tx_Vhs_ViewHelpers_Once_CookieViewHelper extends Tx_Vhs_ViewHelpers_Once_A
 	 */
 	protected function removeIfExpired() {
 		$identifier = $this->getIdentifier();
-		$existsInCookie = (isset($_COOKIE[$identifier]) === TRUE);
-		if ($existsInCookie === TRUE) {
+		$existsInCookie = (boolean) (TRUE === isset($_COOKIE[$identifier]));
+		if (TRUE === $existsInCookie) {
 			unset($_SESSION[$identifier]);
 			setcookie($identifier, NULL, time() - 1);
 		}

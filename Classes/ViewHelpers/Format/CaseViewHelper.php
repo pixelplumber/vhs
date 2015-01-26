@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Format;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2013 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -23,22 +24,28 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  * ************************************************************* */
 
+use TYPO3\CMS\Fluid\Core\ViewHelper\AbstractViewHelper;
+use FluidTYPO3\Vhs\Utility\FrontendSimulationUtility;
+
 /**
  * Case Formatting ViewHelper
  *
  * Formats string case according to provided arguments
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
  * @subpackage ViewHelpers\Format
  */
-class Tx_Vhs_ViewHelpers_Format_CaseViewHelper extends Tx_Fluid_Core_ViewHelper_AbstractViewHelper {
+class CaseViewHelper extends AbstractViewHelper {
 
 	const CASE_UPPER = 'upper';
 	const CASE_LOWER = 'lower';
 	const CASE_UCWORDS = 'ucwords';
 	const CASE_UCFIRST = 'ucfirst';
 	const CASE_LCFIRST = 'lcfirst';
+	const CASE_CAMELCASE = 'CamelCase';
+	const CASE_LOWERCAMELCASE = 'lowerCamelCase';
+	const CASE_UNDERSCORED = 'lowercase_underscored';
 
 	/**
 	 * @param string $string
@@ -46,15 +53,25 @@ class Tx_Vhs_ViewHelpers_Format_CaseViewHelper extends Tx_Fluid_Core_ViewHelper_
 	 * @return string
 	 */
 	public function render($string = NULL, $case = NULL) {
-		if ($string === NULL) {
+		if (NULL === $string) {
 			$string = $this->renderChildren();
 		}
+		if ('BE' === TYPO3_MODE) {
+			$tsfeBackup = FrontendSimulationUtility::simulateFrontendEnvironment();
+		}
 		switch ($case) {
-			case self::CASE_LOWER: $string = mb_strtolower($string); break;
-			case self::CASE_UPPER: $string = mb_strtoupper($string); break;
+			case self::CASE_LOWER: $string = $GLOBALS['TSFE']->csConvObj->conv_case($GLOBALS['TSFE']->renderCharset, $string, 'toLower'); break;
+			case self::CASE_UPPER: $string = $GLOBALS['TSFE']->csConvObj->conv_case($GLOBALS['TSFE']->renderCharset, $string, 'toUpper'); break;
 			case self::CASE_UCWORDS: $string = ucwords($string); break;
-			case self::CASE_UCFIRST: $string{0} = strtoupper($string{0}); break;
-			case self::CASE_LCFIRST: $string{0} = strtolower($string{0}); break;
+			case self::CASE_UCFIRST: $string = $GLOBALS['TSFE']->csConvObj->convCaseFirst($GLOBALS['TSFE']->renderCharset, $string, 'toUpper'); break;
+			case self::CASE_LCFIRST: $string = $GLOBALS['TSFE']->csConvObj->convCaseFirst($GLOBALS['TSFE']->renderCharset, $string, 'toLower'); break;
+			case self::CASE_CAMELCASE: $string = \TYPO3\CMS\Core\Utility\GeneralUtility::underscoredToUpperCamelCase($string); break;
+			case self::CASE_LOWERCAMELCASE: $string = \TYPO3\CMS\Core\Utility\GeneralUtility::underscoredToLowerCamelCase($string); break;
+			case self::CASE_UNDERSCORED: $string = \TYPO3\CMS\Core\Utility\GeneralUtility::camelCaseToLowerCaseUnderscored($string); break;
+			default: break;
+		}
+		if ('BE' === TYPO3_MODE) {
+			FrontendSimulationUtility::resetFrontendEnvironment($tsfeBackup);
 		}
 		return $string;
 	}

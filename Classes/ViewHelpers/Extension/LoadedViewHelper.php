@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Extension;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -22,17 +23,20 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Fluid\Core\ViewHelper\AbstractConditionViewHelper;
 
 /**
  * ### Extension: Loaded (Condition) ViewHelper
  *
  * Condition to check if an extension is loaded.
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
  * @subpackage ViewHelpers\Extension
  */
-class Tx_Vhs_ViewHelpers_Extension_LoadedViewHelper extends Tx_Fluid_Core_ViewHelper_AbstractConditionViewHelper {
+class LoadedViewHelper extends AbstractConditionViewHelper {
 
 	/**
 	 * Initialize arguments
@@ -49,9 +53,9 @@ class Tx_Vhs_ViewHelpers_Extension_LoadedViewHelper extends Tx_Fluid_Core_ViewHe
 	 */
 	public function render() {
 		$extensionName = $this->arguments['extensionName'];
-		$extensionKey = t3lib_div::camelCaseToLowerCaseUnderscored($extensionName);
-		$isLoaded = t3lib_extMgm::isLoaded($extensionKey);
-		if ($isLoaded !== FALSE) {
+		$extensionKey = GeneralUtility::camelCaseToLowerCaseUnderscored($extensionName);
+		$isLoaded = ExtensionManagementUtility::isLoaded($extensionKey);
+		if (TRUE === $isLoaded) {
 			return $this->renderThenChild();
 		} else {
 			return $this->renderElseChild();

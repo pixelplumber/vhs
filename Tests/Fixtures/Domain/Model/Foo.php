@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\Tests\Fixtures\Domain\Model;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2013 Björn Fromme <fromme@dreipunktnull.com>, dreipunktnull
+ *  (c) 2014 Björn Fromme <fromme@dreipunktnull.com>, dreipunktnull
  *
  *  All rights reserved
  *
@@ -23,25 +24,33 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  * ************************************************************* */
 
+use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
+use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
+
 /**
  * @author Björn Fromme <fromme@dreipunktnull.com>, dreipunktnull
  * @package Vhs
  */
-class Tx_Vhs_Tests_Fixtures_Domain_Model_Foo extends Tx_Extbase_DomainObject_AbstractEntity {
+class Foo extends AbstractEntity {
 
     /**
      * @var string
      */
     protected $bar;
 
+	/**
+	 * @var Foo
+	 */
+	protected $foo;
+
     /**
-     * @var Tx_Extbase_Persistence_ObjectStorage<Tx_Vhs_Tests_Fixtures_Domain_Model_Foo>
+     * @var ObjectStorage<Foo>
      */
     protected $children;
 
     public function __construct() {
         $this->bar = 'baz';
-        $this->children = new Tx_Extbase_Persistence_ObjectStorage();
+        $this->children = new ObjectStorage();
     }
 
     /**
@@ -51,18 +60,32 @@ class Tx_Vhs_Tests_Fixtures_Domain_Model_Foo extends Tx_Extbase_DomainObject_Abs
         return $this->bar;
     }
 
+	/**
+	 * @param Foo $foo
+	 */
+	public function setFoo($foo) {
+		$this->foo = $foo;
+	}
+
+	/**
+	 * @return Foo
+	 */
+	public function getFoo() {
+		return $this->foo;
+	}
+
     /**
-     * @return Tx_Extbase_Persistence_ObjectStorage<Tx_Vhs_Tests_Fixtures_Domain_Model_Foo>
+     * @return ObjectStorage<Foo>
      */
     public function getChildren() {
         return $this->children;
     }
 
     /**
-     * @param Tx_Vhs_Tests_Fixtures_Domain_Model_Foo $child
-     * @return Tx_Vhs_Tests_Fixtures_Domain_Model_Foo
+     * @param Foo $child
+     * @return Foo
      */
-    public function addChild(Tx_Vhs_Tests_Fixtures_Domain_Model_Foo $child) {
+    public function addChild(Foo $child) {
         $this->children->attach($child);
 
         return $this;

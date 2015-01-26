@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Asset\Compilable;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2013 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -30,20 +31,20 @@
  * CompilableAssets to indicate that the CompilableAsset
  * should be compiled by this particular Compiler.
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
- * @subpackage ViewHelpers\Asset
+ * @subpackage ViewHelpers\Asset\Compilable
  */
-interface Tx_Vhs_ViewHelpers_Asset_Compilable_AssetCompilerInterface extends Tx_Vhs_ViewHelpers_Asset_AssetInterface {
+interface AssetCompilerInterface extends \FluidTYPO3\Vhs\ViewHelpers\Asset\AssetInterface {
 
 	/**
-	 * @param Tx_Vhs_ViewHelpers_Asset_AssetInterface $asset
+	 * @param \FluidTYPO3\Vhs\ViewHelpers\Asset\AssetInterface $asset
 	 * @return void
 	 */
-	public function addAsset(Tx_Vhs_ViewHelpers_Asset_AssetInterface $asset);
+	public function addAsset(\FluidTYPO3\Vhs\ViewHelpers\Asset\AssetInterface $asset);
 
 	/**
-	 * @return Tx_Vhs_ViewHelpers_Asset_AssetInterface[]
+	 * @return \FluidTYPO3\Vhs\ViewHelpers\Asset\AssetInterface[]
 	 */
 	public function getAssets();
 

@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Media;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2013 Björn Fromme <fromme@dreipunktnull.com>, dreipunktnull
+ *  (c) 2014 Björn Fromme <fromme@dreipunktnull.com>, dreipunktnull
  *
  *  All rights reserved
  *
@@ -22,6 +23,7 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  * ************************************************************* */
+use FluidTYPO3\Vhs\ViewHelpers\Media\Image\AbstractImageViewHelper;
 
 /**
  * Renders an image tag for the given resource including all valid
@@ -32,7 +34,7 @@
  * @package Vhs
  * @subpackage ViewHelpers\Media
  */
-class Tx_Vhs_ViewHelpers_Media_ImageViewHelper extends Tx_Vhs_ViewHelpers_Media_Image_AbstractImageViewHelper {
+class ImageViewHelper extends AbstractImageViewHelper {
 
 	/**
 	 * name of the tag to be created by this view helper
@@ -67,7 +69,7 @@ class Tx_Vhs_ViewHelpers_Media_ImageViewHelper extends Tx_Vhs_ViewHelpers_Media_
 		$this->tag->addAttribute('src', $src);
 		$this->tag->addAttribute('width', $this->imageInfo[0]);
 		$this->tag->addAttribute('height', $this->imageInfo[1]);
-		if ($this->arguments['title'] === '') {
+		if ('' === $this->arguments['title']) {
 			$this->tag->addAttribute('title', $this->arguments['alt']);
 		}
 		return $this->tag->render();

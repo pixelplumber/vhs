@@ -1,8 +1,10 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Page;
+
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -22,6 +24,7 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  * ************************************************************* */
+use FluidTYPO3\Vhs\ViewHelpers\Page\Menu\AbstractMenuViewHelper;
 
 /**
  * ### Page: Menu ViewHelper
@@ -34,12 +37,12 @@
  * a range of support CSS classes are available along
  * with each page record.
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @author Björn Fromme <fromeme@dreipunktnull.com>, dreipunktnull
  * @package Vhs
  * @subpackage ViewHelpers\Page
  */
-class Tx_Vhs_ViewHelpers_Page_MenuViewHelper extends Tx_Vhs_ViewHelpers_Page_Menu_AbstractMenuViewHelper {
+class MenuViewHelper extends AbstractMenuViewHelper {
 
 	/**
 	 * @return void
@@ -47,36 +50,6 @@ class Tx_Vhs_ViewHelpers_Page_MenuViewHelper extends Tx_Vhs_ViewHelpers_Page_Men
 	public function initializeArguments() {
 		parent::initializeArguments();
 		$this->registerArgument('pageUid', 'integer', 'Optional parent page UID to use as top level of menu. If left out will be detected from rootLine using $entryLevel', FALSE, NULL);
-	}
-
-	/**
-	 * Render method
-	 *
-	 * @return string
-	 */
-	public function render() {
-		$pageUid = $this->arguments['pageUid'];
-		$entryLevel = $this->arguments['entryLevel'];
-		$rootLineData = $this->pageSelect->getRootLine($GLOBALS['TSFE']->id);
-		if (!$pageUid) {
-			if (NULL !== $rootLineData[$entryLevel]['uid']) {
-				$pageUid = $rootLineData[$entryLevel]['uid'];
-			} else {
-				return '';
-			}
-		}
-		$menuData = $this->pageSelect->getMenu($pageUid);
-		$menu = $this->parseMenu($menuData, $rootLineData);
-		$rootLine = $this->parseMenu($rootLineData, $rootLineData);
-		$this->backupVariables();
-		$this->templateVariableContainer->add('menu', $menu);
-		$this->templateVariableContainer->add('rootLine', $rootLine);
-		$content = $this->renderChildren();
-		$this->templateVariableContainer->remove('menu');
-		$this->templateVariableContainer->remove('rootLine');
-		$output = $this->renderContent($menu, $content);
-		$this->restoreVariables();
-		return $output;
 	}
 
 }

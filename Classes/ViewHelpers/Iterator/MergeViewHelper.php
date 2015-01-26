@@ -1,8 +1,10 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Iterator;
+
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -22,20 +24,18 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use FluidTYPO3\Vhs\Utility\ViewHelperUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
  * Merges arrays/Traversables $a and $b into an array
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
  * @subpackage ViewHelpers\Iterator
  */
-class Tx_Vhs_ViewHelpers_Iterator_MergeViewHelper extends Tx_Fluid_Core_ViewHelper_AbstractViewHelper {
-
-	/**
-	 * @var boolean
-	 */
-	protected $useKeys = TRUE;
+class MergeViewHelper extends AbstractViewHelper {
 
 	/**
 	 * Merges arrays/Traversables $a and $b into an array
@@ -47,27 +47,10 @@ class Tx_Vhs_ViewHelpers_Iterator_MergeViewHelper extends Tx_Fluid_Core_ViewHelp
 	 */
 	public function render($a, $b, $useKeys = TRUE) {
 		$this->useKeys = (boolean) $useKeys;
-		$a = $this->ensureIsArray($a);
-		$b = $this->ensureIsArray($b);
-		$merged = t3lib_div::array_merge_recursive_overrule($a, $b);
+		$a = ViewHelperUtility::arrayFromArrayOrTraversableOrCSV($a, $useKeys);
+		$b = ViewHelperUtility::arrayFromArrayOrTraversableOrCSV($b, $useKeys);
+		$merged = GeneralUtility::array_merge_recursive_overrule($a, $b);
 		return $merged;
-	}
-
-	/**
-	 * @param mixed $candidate
-	 * @return array
-	 */
-	protected function ensureIsArray($candidate) {
-		if (TRUE === $candidate instanceof Traversable) {
-			return iterator_to_array($candidate, $useKeys);
-		}
-		if (TRUE === empty($candidate)) {
-			return array();
-		}
-		if (FALSE === is_array($candidate)) {
-			return array($candidate);
-		}
-		return (array) $candidate;
 	}
 
 }

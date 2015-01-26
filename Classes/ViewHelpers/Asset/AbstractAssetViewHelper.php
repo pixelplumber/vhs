@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Asset;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -28,7 +29,7 @@
  * which will be included when rendering the page.
  *
  * Note: building of all Assets takes place in the class
- * Tx_Vhs_ViewHelpers_AssetViewHelper with two reasons:
+ * FluidTYPO3\Vhs\Service\AssetService with two reasons:
  *
  * - A "buildAll" method should never be possible to call
  *   from any Asset ViewHelper; it should only be possible
@@ -37,18 +38,23 @@
  *   cannot be hidden from access by subclasses if placed
  *   in this class.
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
  * @subpackage ViewHelpers\Asset
  */
-abstract class Tx_Vhs_ViewHelpers_Asset_AbstractAssetViewHelper
-	extends Tx_Fluid_Core_ViewHelper_AbstractViewHelper
-	implements Tx_Vhs_ViewHelpers_Asset_AssetInterface {
+abstract class AbstractAssetViewHelper
+	extends \TYPO3\CMS\Fluid\Core\ViewHelper\AbstractViewHelper
+	implements AssetInterface {
 
 	/**
-	 * @var Tx_Extbase_Configuration_ConfigurationManagerInterface
+	 * @var \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface
 	 */
 	protected $configurationManager;
+
+	/**
+	 * @var \FluidTYPO3\Vhs\Service\AssetService
+	 */
+	protected $assetService;
 
 	/**
 	 * @var array
@@ -71,12 +77,12 @@ abstract class Tx_Vhs_ViewHelpers_Asset_AbstractAssetViewHelper
 	protected $content;
 
 	/**
-	 * @var Tx_Extbase_Object_ObjectManagerInterface
+	 * @var \TYPO3\CMS\Extbase\Object\ObjectManagerInterface
 	 */
 	protected $objectManager;
 
 	/**
-	 * @var Tx_Fluid_Core_ViewHelper_TagBuilder
+	 * @var \TYPO3\CMS\Fluid\Core\ViewHelper\TagBuilder
 	 */
 	protected $tagBuilder;
 
@@ -94,20 +100,28 @@ abstract class Tx_Vhs_ViewHelpers_Asset_AbstractAssetViewHelper
 
 
 	/**
-	 * @param Tx_Extbase_Configuration_ConfigurationManagerInterface $configurationManager
+	 * @param \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface $configurationManager
 	 * @return void
 	 */
-	public function injectConfigurationManager(Tx_Extbase_Configuration_ConfigurationManagerInterface $configurationManager) {
+	public function injectConfigurationManager(\TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface $configurationManager) {
 		$this->configurationManager = $configurationManager;
 	}
 
 	/**
-	 * @param Tx_Extbase_Object_ObjectManagerInterface $objectManager
+	 * @param \FluidTYPO3\Vhs\Service\AssetService $assetService
 	 * @return void
 	 */
-	public function injectObjectManager(Tx_Extbase_Object_ObjectManagerInterface $objectManager) {
+	public function injectAssetService(\FluidTYPO3\Vhs\Service\AssetService $assetService) {
+		$this->assetService = $assetService;
+	}
+
+	/**
+	 * @param \TYPO3\CMS\Extbase\Object\ObjectManagerInterface $objectManager
+	 * @return void
+	 */
+	public function injectObjectManager(\TYPO3\CMS\Extbase\Object\ObjectManagerInterface $objectManager) {
 		$this->objectManager = $objectManager;
-		$this->tagBuilder = $this->objectManager->create('Tx_Fluid_Core_ViewHelper_TagBuilder');
+		$this->tagBuilder = $this->objectManager->get('TYPO3\CMS\Fluid\Core\ViewHelper\TagBuilder');
 	}
 
 	/**
@@ -123,10 +137,11 @@ abstract class Tx_Vhs_ViewHelpers_Asset_AbstractAssetViewHelper
 		$this->registerArgument('group', 'string', 'Optional name of a logical group (created dynamically just by using the name) to which this particular asset belongs.', FALSE, 'fluid');
 		$this->registerArgument('debug', 'boolean', 'If TRUE, outputs information about this ViewHelper when the tag is used. Two master debug switches exist in TypoScript; see documentation about Page / Asset ViewHelper');
 		$this->registerArgument('standalone', 'boolean', 'If TRUE, excludes this Asset from any concatenation which may be applied');
+		$this->registerArgument('rewrite', 'boolean', 'If FALSE, this Asset will be included as is without any processing of contained urls', FALSE, TRUE);
 		$this->registerArgument('fluid', 'boolean', 'If TRUE, renders this (standalone or external) Asset as if it were a Fluid template, passing along values of the "arguments" attribute or every available template variable if "arguments" not specified', FALSE, FALSE);
-		$this->registerArgument('arguments', 'mixed', 'An optional array of arguments assigned to the Asset source file when being rendered as a Fluid template - requires the "fluid" attribute switched on', FALSE, FALSE);
+		$this->registerArgument('variables', 'mixed', 'An optional array of arguments which you use inside the Asset, be it standalon or inline. Use this argument to ensure your Asset filenames are only reused when all variables used in the Asset are the same', FALSE, FALSE);
 		$this->registerArgument('allowMoveToFooter', 'boolean', 'If TRUE, allows this Asset to be included in the document footer rather than the header. Should never be allowed for CSS.', FALSE, TRUE);
-		$this->registerArgument('trim', 'boolean', 'If FALSE, disables the per-default enabled trimming of whitespace off beginnings and ends of lines in the Asset content body', FALSE, TRUE);
+		$this->registerArgument('trim', 'boolean', 'DEPRECATED. Trim is no longer supported. Setting this to TRUE doesn\'t do anything.', FALSE, FALSE);
 		$this->registerArgument('namedChunks', 'boolean', 'If FALSE, hides the comment containing the name of each of Assets which is merged in a merged file. Disable to avoid a bit more output at the cost of transparency', FALSE, FALSE);
 	}
 
@@ -162,7 +177,16 @@ abstract class Tx_Vhs_ViewHelpers_Asset_AbstractAssetViewHelper
 	 * @return mixed
 	 */
 	public function build() {
-		return $this->getContent();
+		if (FALSE === isset($this->arguments['path']) || TRUE === empty($this->arguments['path'])) {
+			return $this->getContent();
+		}
+		if (TRUE === isset($this->arguments['external']) && TRUE === (boolean) $this->arguments['external']) {
+			$path = $this->arguments['path'];
+		} else {
+			$path = \TYPO3\CMS\Core\Utility\GeneralUtility::getFileAbsFileName($this->arguments['path']);
+		}
+		$content = file_get_contents($path);
+		return $content;
 	}
 
 	/**
@@ -174,19 +198,21 @@ abstract class Tx_Vhs_ViewHelpers_Asset_AbstractAssetViewHelper
 	 * @return void
 	 */
 	protected function finalize() {
+		$this->assetSettingsCache = NULL;
+		$this->localSettings = NULL;
 		if (FALSE === isset($GLOBALS['VhsAssets'])) {
 			$GLOBALS['VhsAssets'] = array();
 		}
 		$name = $this->getName();
 		$overwrite = $this->getOverwrite();
 		$slotFree = FALSE === isset($GLOBALS['VhsAssets'][$name]);
-		if (FALSE === ($overwrite && $slotFree)) {
+		if (FALSE === ($overwrite || $slotFree)) {
 			return;
 		}
 		$this->content = $this->getContent();
 		$this->tagBuilder->setContent($this->content);
 		$this->debug();
-		$GLOBALS['VhsAssets'][$name] = &$this;
+		$GLOBALS['VhsAssets'][$name] = clone $this;
 	}
 
 	/**
@@ -199,7 +225,7 @@ abstract class Tx_Vhs_ViewHelpers_Asset_AbstractAssetViewHelper
 		$debugInformation = $this->getDebugInformation();
 		if (TRUE === $debugOutputEnabled) {
 			if (TRUE === $useDebugUtility) {
-				Tx_Extbase_Utility_Debugger::var_dump($debugInformation);
+				\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($debugInformation);
 			} else {
 				return var_export($debugInformation, TRUE);
 			}
@@ -212,7 +238,7 @@ abstract class Tx_Vhs_ViewHelpers_Asset_AbstractAssetViewHelper
 	public function getDependencies() {
 		$assetSettings = $this->getAssetSettings();
 		if (TRUE === isset($assetSettings['dependencies'])) {
-			return t3lib_div::trimExplode(',', $assetSettings['dependencies'], TRUE);
+			return \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode(',', $assetSettings['dependencies'], TRUE);
 		}
 		return array();
 	}
@@ -222,7 +248,7 @@ abstract class Tx_Vhs_ViewHelpers_Asset_AbstractAssetViewHelper
 	 */
 	protected function getOverwrite() {
 		$assetSettings = $this->getAssetSettings();
-		return (TRUE === isset($assetSettings['overwrite']) && $assetSettings['overwrite'] > 0);
+		return (boolean) (TRUE === isset($assetSettings['overwrite']) && $assetSettings['overwrite'] > 0);
 	}
 
 	/**
@@ -237,13 +263,14 @@ abstract class Tx_Vhs_ViewHelpers_Asset_AbstractAssetViewHelper
 	 */
 	public function getName() {
 		$assetSettings = $this->getAssetSettings();
-		if (TRUE === isset($assetSettings['name'])) {
+		if (TRUE === isset($assetSettings['name']) && FALSE === empty($assetSettings['name'])) {
 			$name = $assetSettings['name'];
 		} else {
-			$name = md5(implode('', array_values($assetSettings)));
+			$name = md5(serialize($assetSettings));
 		}
-		if (TRUE === (boolean) $assetSettings['fluid']) {
-			$name .= '-' . md5(implode('', array_values($this->getVariables())));
+		$variables = $this->getVariables();
+		if (0 < count($variables)) {
+			$name .= '-' . md5(serialize($variables));
 		}
 		return $name;
 	}
@@ -251,7 +278,7 @@ abstract class Tx_Vhs_ViewHelpers_Asset_AbstractAssetViewHelper
 	/**
 	 * @return string
 	 */
-	protected function getGroup() {
+	public function getGroup() {
 		$assetSettings = $this->getAssetSettings();
 		return $assetSettings['group'];
 	}
@@ -261,15 +288,10 @@ abstract class Tx_Vhs_ViewHelpers_Asset_AbstractAssetViewHelper
 	 */
 	protected function getContent() {
 		$assetSettings = $this->getAssetSettings();
-		if (FALSE === isset($settings['content'])) {
-			$content = $this->renderChildren();
+		if (TRUE === isset($assetSettings['content']) && FALSE === empty($assetSettings['content'])) {
+			$content = $assetSettings['content'];
 		} else {
-			$content = $settings['content'];
-		}
-		if (TRUE === (boolean) $settings['trim']) {
-			$lines = explode(LF, $content);
-			$lines = array_map('trim', $lines);
-			$content = implode('', $lines);
+			$content = $this->renderChildren();
 		}
 		return $content;
 	}
@@ -278,16 +300,16 @@ abstract class Tx_Vhs_ViewHelpers_Asset_AbstractAssetViewHelper
 	 * @return string
 	 */
 	protected function getTagWithContent() {
-		return $this->tagBuilder->render();;
+		return $this->tagBuilder->render();
 	}
 
 	/**
 	 * @return array
 	 */
 	public function getVariables() {
-		$settings = $this->getAssetSettings();
-		if (TRUE === (isset($settings['arguments']) && is_array($settings['arguments']))) {
-			return $settings['arguments'];
+		$assetSettings = $this->getAssetSettings();
+		if (TRUE === (isset($assetSettings['variables']) && is_array($assetSettings['variables']))) {
+			return $assetSettings['variables'];
 		}
 		return array();
 	}
@@ -301,29 +323,28 @@ abstract class Tx_Vhs_ViewHelpers_Asset_AbstractAssetViewHelper
 	 */
 	public function getSettings() {
 		if (TRUE === is_null(self::$settingsCache)) {
-			$allTypoScript = $this->configurationManager->getConfiguration(Tx_Extbase_Configuration_ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT);
+			$allTypoScript = $this->configurationManager->getConfiguration(\TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT);
 			$settingsExist = isset($allTypoScript['plugin.']['tx_vhs.']['settings.']);
 			if (FALSE === $settingsExist) {
-					// no settings exist, but don't allow a NULL value. This prevents cache clobbering.
+				// no settings exist, but don't allow a NULL value. This prevents cache clobbering.
 				self::$settingsCache = array();
 			} else {
-				self::$settingsCache = $this->dotSuffixArrayToPlainArray($allTypoScript['plugin.']['tx_vhs.']['settings.']);
+				self::$settingsCache = \TYPO3\CMS\Core\Utility\GeneralUtility::removeDotsFromTS($allTypoScript['plugin.']['tx_vhs.']['settings.']);
 			}
 		}
 		$settings = self::$settingsCache;
 		if (TRUE === is_array($this->localSettings)) {
-			$settings = t3lib_div::array_merge_recursive_overrule($settings, $this->localSettings);
+			$settings = \TYPO3\CMS\Core\Utility\GeneralUtility::array_merge_recursive_overrule($settings, $this->localSettings);
 		}
 		return $settings;
 	}
 
 	/**
-	 * @param array|ArrayAccess $settings
+	 * @param array|\ArrayAccess $settings
 	 */
 	public function setSettings($settings) {
-		if (TRUE === is_array($settings) || TRUE === $settings instanceof ArrayAccess) {
+		if (TRUE === is_array($settings) || TRUE === $settings instanceof \ArrayAccess) {
 			$this->localSettings = $settings;
-			$this->argumentsCache = NULL;
 		}
 	}
 
@@ -334,18 +355,26 @@ abstract class Tx_Vhs_ViewHelpers_Asset_AbstractAssetViewHelper
 		if (TRUE === is_array($this->assetSettingsCache)) {
 			return $this->assetSettingsCache;
 		}
-			// Note: name and group are taken directly from arguments; if they are changed through
-			// TypoScript the changed values will be returned from this function.
+		// Note: name and group are taken directly from arguments; if they are changed through
+		// TypoScript the changed values will be returned from this function.
 		$name = $this->arguments['name'];
 		$groupName = $this->arguments['group'];
 		$settings = $this->getSettings();
 		$assetSettings = $this->arguments;
+		$assetSettings['type'] = $this->getType();
+		if (TRUE === isset($settings['asset']) && TRUE === is_array($settings['asset'])) {
+			$assetSettings = \TYPO3\CMS\Core\Utility\GeneralUtility::array_merge_recursive_overrule($assetSettings, $settings['asset']);
+		}
 		if (TRUE === (isset($settings['assetGroup'][$groupName]) && is_array($settings['assetGroup'][$groupName]))) {
-			$assetSettings = t3lib_div::array_merge_recursive_overrule($assetSettings, $settings['assetGroup'][$groupName]);
+			$assetSettings = \TYPO3\CMS\Core\Utility\GeneralUtility::array_merge_recursive_overrule($assetSettings, $settings['assetGroup'][$groupName]);
 		}
 		if (TRUE === (isset($settings['asset'][$name]) && is_array($settings['asset'][$name]))) {
-			$assetSettings = t3lib_div::array_merge_recursive_overrule($assetSettings, $settings['asset'][$name]);
+			$assetSettings = \TYPO3\CMS\Core\Utility\GeneralUtility::array_merge_recursive_overrule($assetSettings, $settings['asset'][$name]);
 		}
+		if (FALSE === empty($assetSettings['path']) && FALSE === (boolean) $assetSettings['external']) {
+			$assetSettings['path'] = \TYPO3\CMS\Core\Utility\GeneralUtility::getFileAbsFileName($assetSettings['path']);
+		}
+		$assetSettings['name'] = $name;
 		$this->assetSettingsCache = $assetSettings;
 		return $assetSettings;
 	}
@@ -420,24 +449,6 @@ abstract class Tx_Vhs_ViewHelpers_Asset_AbstractAssetViewHelper
 			return FALSE;
 		}
 		return TRUE;
-	}
-
-	/**
-	 * @param array $array
-	 * @return array
-	 */
-	protected function dotSuffixArrayToPlainArray($array) {
-		$dotFreeArray = array();
-		foreach ($array as $key => $value) {
-			if (substr($key, -1) === '.') {
-				$key = substr($key, 0, -1);
-			}
-			if (TRUE === is_array($value)) {
-				$value = $this->dotSuffixArrayToPlainArray($value);
-			}
-			$dotFreeArray[$key] = $value;
-		}
-		return $dotFreeArray;
 	}
 
 	/**

@@ -1,8 +1,10 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Security;
+
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+*  (c) 2014 Claus Due <claus@namelesscoder.net>
 *
 *  All rights reserved
 *
@@ -40,13 +42,13 @@
  *
  * Is the mirror opposite of `v:security.deny`.
  *
- * @author Claus Due, Wildside A/S
+ * @author Claus Due
  * @package Vhs
  * @subpackage ViewHelpers\Security
  */
-class Tx_Vhs_ViewHelpers_Security_AllowViewHelper
-extends Tx_Vhs_ViewHelpers_Security_AbstractSecurityViewHelper
-implements Tx_Fluid_Core_ViewHelper_Facets_ChildNodeAccessInterface {
+use TYPO3\CMS\Fluid\Core\ViewHelper\Facets\ChildNodeAccessInterface;
+
+class AllowViewHelper extends AbstractSecurityViewHelper implements ChildNodeAccessInterface {
 
 	/**
 	 * Render allow - i.e. render "then" child if arguments are satisfied
@@ -55,12 +57,11 @@ implements Tx_Fluid_Core_ViewHelper_Facets_ChildNodeAccessInterface {
 	 */
 	public function render() {
 		$evaluation = $this->evaluateArguments();
-		if ($evaluation === TRUE) {
+		if (TRUE === $evaluation) {
 			return $this->renderThenChild();
 		} else {
 			return $this->renderElseChild();
 		}
-		return NULL;
 	}
 
 }

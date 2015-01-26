@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Media;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Björn Fromme <fromme@dreipunktnull.com>, dreipunktnull
+ *  (c) 2014 Björn Fromme <fromme@dreipunktnull.com>, dreipunktnull
  *
  *  All rights reserved
  *
@@ -22,18 +23,23 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  * ************************************************************* */
+use FluidTYPO3\Vhs\ViewHelpers\AbstractViewHelperTest;
 
 /**
  * @author Björn Fromme <fromme@dreipunktnull.com>, dreipunktnull
  * @package Vhs
+ * @subpackage ViewHelpers\Media
  */
-class Tx_Vhs_ViewHelpers_Media_ExtensionViewHelperTest extends Tx_Extbase_Tests_Unit_BaseTestCase {
+class ExtensionViewHelperTest extends AbstractViewHelperTest {
 
 	/**
 	 * @var string
 	 */
 	protected $fixturesPath;
 
+	/**
+	 * Setup
+	 */
 	public function setUp() {
 		$this->fixturesPath = 'EXT:vhs/Tests/Fixtures/Files';
 	}
@@ -42,7 +48,7 @@ class Tx_Vhs_ViewHelpers_Media_ExtensionViewHelperTest extends Tx_Extbase_Tests_
 	 * @test
 	 */
 	public function returnsEmptyStringForEmptyArguments() {
-		$viewHelper = $this->getMock('Tx_Vhs_ViewHelpers_Media_ExtensionViewHelper', array('renderChildren'));
+		$viewHelper = $this->getMock('FluidTYPO3\Vhs\ViewHelpers\Media\ExtensionViewHelper', array('renderChildren'));
 		$viewHelper->expects($this->once())->method('renderChildren')->will($this->returnValue(NULL));
 		$this->assertEquals('', $viewHelper->render());
 	}
@@ -51,7 +57,7 @@ class Tx_Vhs_ViewHelpers_Media_ExtensionViewHelperTest extends Tx_Extbase_Tests_
 	 * @test
 	 */
 	public function returnsExpectedExtensionForProvidedPath() {
-		$viewHelper = $this->getMock('Tx_Vhs_ViewHelpers_Media_ExtensionViewHelper', array('renderChildren'));
+		$viewHelper = $this->getMock('FluidTYPO3\Vhs\ViewHelpers\Media\ExtensionViewHelper', array('renderChildren'));
 		$viewHelper->expects($this->once())->method('renderChildren')->will($this->returnValue($this->fixturesPath . '/foo.txt'));
 		$this->assertEquals('txt', $viewHelper->render());
 	}
@@ -60,7 +66,7 @@ class Tx_Vhs_ViewHelpers_Media_ExtensionViewHelperTest extends Tx_Extbase_Tests_
 	 * @test
 	 */
 	public function returnsEmptyStringForFileWithoutExtension() {
-		$viewHelper = $this->getMock('Tx_Vhs_ViewHelpers_Media_ExtensionViewHelper', array('renderChildren'));
+		$viewHelper = $this->getMock('FluidTYPO3\Vhs\ViewHelpers\Media\ExtensionViewHelper', array('renderChildren'));
 		$viewHelper->expects($this->once())->method('renderChildren')->will($this->returnValue($this->fixturesPath . '/noext'));
 		$this->assertEquals('', $viewHelper->render());
 	}

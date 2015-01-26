@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Format\Json;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2013 Björn Fromme <fromme@dreipunktnull.com>, dreipunktnull
+ *  (c) 2014 Björn Fromme <fromme@dreipunktnull.com>, dreipunktnull
  *
  *  All rights reserved
  *
@@ -23,17 +24,20 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  * ************************************************************* */
 
+use FluidTYPO3\Vhs\ViewHelpers\AbstractViewHelperTest;
+
 /**
+ * @protection on
  * @author Björn Fromme <fromme@dreipunktnull.com>, dreipunktnull
  * @package Vhs
  */
-class Tx_Vhs_ViewHelpers_Format_Json_DecodeViewHelperTest extends Tx_Extbase_Tests_Unit_BaseTestCase {
+class DecodeViewHelperTest extends AbstractViewHelperTest {
 
 	/**
 	 * @test
 	 */
 	public function returnsNullForEmptyArguments() {
-		$viewHelper = $this->getMock('Tx_Vhs_ViewHelpers_Format_Json_DecodeViewHelper', array('renderChildren'));
+		$viewHelper = $this->getMock($this->getViewHelperClassName(), array('renderChildren'));
 		$viewHelper->expects($this->once())->method('renderChildren')->will($this->returnValue(''));
 
 		$this->assertNull($viewHelper->render());
@@ -47,13 +51,13 @@ class Tx_Vhs_ViewHelpers_Format_Json_DecodeViewHelperTest extends Tx_Extbase_Tes
 		$fixture = '{"foo":"bar","bar":true,"baz":1,"foobar":null}';
 
 		$expected = array(
-			'foo'    => 'bar',
-			'bar'    => TRUE,
-			'baz'    => 1,
+			'foo' => 'bar',
+			'bar' => TRUE,
+			'baz' => 1,
 			'foobar' => NULL,
 		);
 
-		$viewHelper = $this->getMock('Tx_Vhs_ViewHelpers_Format_Json_DecodeViewHelper', array('renderChildren'));
+		$viewHelper = $this->getMock($this->getViewHelperClassName(), array('renderChildren'));
 		$viewHelper->expects($this->once())->method('renderChildren')->will($this->returnValue($fixture));
 
 		$this->assertEquals($expected, $viewHelper->render());
@@ -65,10 +69,10 @@ class Tx_Vhs_ViewHelpers_Format_Json_DecodeViewHelperTest extends Tx_Extbase_Tes
 	public function throwsExceptionForInvalidArgument() {
 		$invalidJson = "{'foo': 'bar'}";
 
-		$viewHelper = $this->getMock('Tx_Vhs_ViewHelpers_Format_Json_DecodeViewHelper', array('renderChildren'));
+		$viewHelper = $this->getMock($this->getViewHelperClassName(), array('renderChildren'));
 		$viewHelper->expects($this->once())->method('renderChildren')->will($this->returnValue($invalidJson));
 
-		$this->setExpectedException('Tx_Fluid_Core_ViewHelper_Exception');
+		$this->setExpectedException('TYPO3\CMS\Fluid\Core\ViewHelper\Exception');
 		$this->assertEquals('null', $viewHelper->render());
 	}
 }

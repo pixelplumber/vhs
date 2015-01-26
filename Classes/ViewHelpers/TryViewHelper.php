@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2013 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -60,7 +61,7 @@
  *         <!-- assume that the variable {badJson} contains the string "DontDecodeMe"
  *              which if course is invalid JSON and cannot be decoded. The default
  *              behavior is to simply output a simple "cannot decode" string. -->
- *         <v:var.set name="decodedBadJson" value="{badJson -> v:format.json.decode()}" />
+ *         <v:variable.set name="decodedBadJson" value="{badJson -> v:format.json.decode()}" />
  *         Displayed only if the JSON decode worked. Much more code and many more
  *         ViewHelpers can go here. Now, imagine that this block spans so much code
  *         that potentially there could come an Exception from many additional places
@@ -94,11 +95,14 @@
  *     <!-- Note: be VERY careful about the inline JSON syntax! It's very close to Fluids. Always
  *          double quote your object variables' names, that prevents almost all issues! -->
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
  * @subpackage ViewHelpers
  */
-class Tx_Vhs_ViewHelpers_TryViewHelper extends Tx_Fluid_Core_ViewHelper_AbstractConditionViewHelper {
+use TYPO3\CMS\Fluid\Core\ViewHelper\AbstractConditionViewHelper;
+use FluidTYPO3\Vhs\Utility\ViewHelperUtility;
+
+class TryViewHelper extends AbstractConditionViewHelper {
 
 	/**
 	 * @return mixed
@@ -109,16 +113,9 @@ class Tx_Vhs_ViewHelpers_TryViewHelper extends Tx_Fluid_Core_ViewHelper_Abstract
 			if (TRUE === empty($content)) {
 				$content = $this->renderChildren();
 			}
-		} catch (Exception $error) {
-			if (TRUE === $this->templateVariableContainer->exists('exception')) {
-				$backup = $this->templateVariableContainer->get('exception');
-			}
-			$this->templateVariableContainer->add('exception', $error);
-			$content = $this->renderElseChild();
-			$this->templateVariableContainer->remove('exception');
-			if (TRUE === isset($backup)) {
-				$this->templateVariableContainer->add('exception', $backup);
-			}
+		} catch (\Exception $error) {
+			$variables = array('exception' => $error);
+			$content = ViewHelperUtility::renderChildrenWithVariables($this, $this->templateVariableContainer, $variables);
 		}
 		return $content;
 	}

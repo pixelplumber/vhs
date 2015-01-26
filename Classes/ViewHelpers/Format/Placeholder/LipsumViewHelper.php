@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Format\Placeholder;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2011 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -23,32 +24,49 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
+use TYPO3\CMS\Fluid\Core\ViewHelper\AbstractViewHelper;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+
 /**
  * Lipsum ViewHelper
  *
  * Renders Lorem Ipsum text according to provided arguments.
  *
- * @author Claus Due, Wildside A/S
+ * @author Claus Due
  * @package Vhs
  * @subpackage ViewHelpers\Format\Placeholder
  */
-class Tx_Vhs_ViewHelpers_Format_Placeholder_LipsumViewHelper extends Tx_Fluid_Core_ViewHelper_AbstractViewHelper {
+class LipsumViewHelper extends AbstractViewHelper {
 
 	/**
-	 * @var	tslib_cObj
+	 * @var string
+	 */
+	protected $lipsum;
+
+	/**
+	 * @var	ContentObjectRenderer
 	 */
 	protected $contentObject;
 
 	/**
-	 * @var Tx_Extbase_Configuration_ConfigurationManagerInterface
+	 * @var ConfigurationManagerInterface
 	 */
 	protected $configurationManager;
 
 	/**
-	 * @param Tx_Extbase_Configuration_ConfigurationManagerInterface $configurationManager
 	 * @return void
 	 */
-	public function injectConfigurationManager(Tx_Extbase_Configuration_ConfigurationManagerInterface $configurationManager) {
+	public function initialize() {
+		$this->lipsum = $this->getDefaultLoremIpsum();
+	}
+
+	/**
+	 * @param ConfigurationManagerInterface $configurationManager
+	 * @return void
+	 */
+	public function injectConfigurationManager(ConfigurationManagerInterface $configurationManager) {
 		$this->configurationManager = $configurationManager;
 		$this->contentObject = $this->configurationManager->getContentObject();
 	}
@@ -74,17 +92,17 @@ class Tx_Vhs_ViewHelpers_Format_Placeholder_LipsumViewHelper extends Tx_Fluid_Co
 	 */
 	public function render($lipsum = NULL) {
 		if (strlen($lipsum) === 0) {
-			$lipsum = $this->getDefaultLoremIpsum();
+			$lipsum = $this->lipsum;
 		}
-		if (strlen($lipsum) < 255 && !preg_match('/[^a-z0-9_\./]/i', $lipsum)) {
-				// argument is most likely a file reference.
-			$sourceFile = t3lib_div::getFileAbsFileName($lipsum);
+		if ((strlen($lipsum) < 255 && !preg_match('/[^a-z0-9_\.\:\/]/i', $lipsum)) || 0 === strpos($lipsum, 'EXT:')) {
+			// argument is most likely a file reference.
+			$sourceFile = GeneralUtility::getFileAbsFileName($lipsum);
 			if (file_exists($sourceFile) === TRUE) {
 				$lipsum = file_get_contents($sourceFile);
 			} else {
-				t3lib_div::sysLog('Vhs LipsumViewHelper was asked to load Lorem Ipsum from a file which does not exist. ' .
+				GeneralUtility::sysLog('Vhs LipsumViewHelper was asked to load Lorem Ipsum from a file which does not exist. ' .
 					'The file was: ' . $sourceFile, 'Vhs');
-				$lipsum = $this->getDefaultLoremIpsum();
+				$lipsum = $this->lipsum;
 			}
 		}
 		$lipsum = preg_replace('/[\\r\\n]{1,}/i', "\n", $lipsum);
@@ -98,7 +116,8 @@ class Tx_Vhs_ViewHelpers_Format_Placeholder_LipsumViewHelper extends Tx_Fluid_Co
 
 		$lipsum = implode("\n", $paragraphs);
 		if ((boolean) $this->arguments['html'] === TRUE) {
-			$lipsum = $this->contentObject->parseFunc($lipsum, array(), '< ' . $this->arguments['parseFuncTSPath']);
+			$tsParserPath = (FALSE === empty($this->arguments['parseFuncTSPath']) ? '< ' . $this->arguments['parseFuncTSPath'] : NULL);
+			$lipsum = $this->contentObject->parseFunc($lipsum, array(), $tsParserPath);
 		}
 		return $lipsum;
 	}
@@ -112,13 +131,13 @@ class Tx_Vhs_ViewHelpers_Format_Placeholder_LipsumViewHelper extends Tx_Fluid_Co
 	 * @return string
 	 */
 	protected function getDefaultLoremIpsum() {
-			// Note: this MAY look suspicious but it really is just a whole lot of Lipsum
-			// in a compressed state. Just to make sure that you trust the block, we run
-			// strip_tags and htmlentities on the string before it is returned. This is not
-			// done on custom Lipsum - but it is done here at no risk, since we know the
-			// Lipsum to contain zero HTML and zero special characters, 100% ASCII. Source
-			// of the Lipsum text is http://www.lipsum.com set at 20 paragraphs, compressed
-			// through a small shell script.
+		// Note: this MAY look suspicious but it really is just a whole lot of Lipsum
+		// in a compressed state. Just to make sure that you trust the block, we run
+		// strip_tags and htmlentities on the string before it is returned. This is not
+		// done on custom Lipsum - but it is done here at no risk, since we know the
+		// Lipsum to contain zero HTML and zero special characters, 100% ASCII. Source
+		// of the Lipsum text is http://www.lipsum.com set at 20 paragraphs, compressed
+		// through a small shell script.
 		$lipsum = <<<LIPSUM
 eJy1WsuO7MYN3c9X6AOE+YGsDDsBDNhGAuNmX6PW9FSgR1tSzfeHr0Oyeu4iiOHFxe3plupBHh4esuqX/ZjXoT7Otg63fdmP4azXUNb5Godp3855uuarHUO51Uc9p7rdh3
 mp1+vw96uWdVgKvT9fw+f8Uae2lKG06dqP1+E3+vFWp4uG5ecHeYY/PPazzcfMg9/b/Dr8Pt+Ga14f7RzO8qjzNsx3enir5zLMrZ7rfhsavVyOSo/st7oPa7muer4O//wo

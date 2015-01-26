@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Format\Placeholder;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2011 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -23,16 +24,18 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use TYPO3\CMS\Fluid\Core\ViewHelper\AbstractTagBasedViewHelper;
+
 /**
  * Placeholder Image ViewHelper
  *
  * Inserts a placeholder image from http://placehold.it/
  *
- * @author Claus Due, Wildside A/S
+ * @author Claus Due
  * @package Vhs
  * @subpackage ViewHelpers\Format\Placeholder
  */
-class Tx_Vhs_ViewHelpers_Format_Placeholder_ImageViewHelper extends Tx_Fluid_Core_ViewHelper_AbstractTagBasedViewHelper {
+class ImageViewHelper extends AbstractTagBasedViewHelper {
 
 	/**
 	 * @var string
@@ -58,25 +61,27 @@ class Tx_Vhs_ViewHelpers_Format_Placeholder_ImageViewHelper extends Tx_Fluid_Cor
 	 * @return string
 	 */
 	public function render($text = NULL) {
-		if ($text === NULL) {
+		if (NULL === $text) {
 			$text = $this->renderChildren();
 		}
-		$height =  ($this->arguments['height'] != $this->arguments['width'] ? $this->arguments['height'] : NULL);
+		$height = $this->arguments['height'] != $this->arguments['width'] ? $this->arguments['height'] : NULL;
+		$addHeight = FALSE === empty($height) ? 'x' . $height : NULL;
 		$url = array(
 			'http://placehold.it',
-			$this->arguments['width'] . ($height ? 'x' . $height : NULL),
+			$this->arguments['width'] . $addHeight,
 			$this->arguments['backgroundColor'],
 			$this->arguments['textColor'],
 		);
-		if ($text) {
+		if (FALSE === empty($text)) {
 			array_push($url, '&text=' . urlencode($text));
 		}
 		$imageUrl = implode('/', $url);
-		$this->tag->forceClosingTag(TRUE);
+		$this->tag->forceClosingTag(FALSE);
 		$this->tag->addAttribute('src', $imageUrl);
 		$this->tag->addAttribute('alt', $imageUrl);
 		$this->tag->addAttribute('width', $this->arguments['width']);
-		$this->tag->addAttribute('height', $height ? $height : $this->arguments['width']);
+		$this->tag->addAttribute('height', FALSE === empty($height) ? $height : $this->arguments['width']);
 		return $this->tag->render();
 	}
+
 }

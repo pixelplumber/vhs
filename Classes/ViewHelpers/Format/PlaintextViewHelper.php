@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Format;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -23,6 +24,8 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use TYPO3\CMS\Fluid\Core\ViewHelper\AbstractViewHelper;
+
 /**
  * Processes output as plaintext. Will trim whitespace off
  * each line that is provided, making display in a <pre>
@@ -32,11 +35,11 @@
  * if you do not want HTML to be displayed as HTML, or
  * simply want it stripped out.
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
  * @subpackage ViewHelpers\Format
  */
-class Tx_Vhs_ViewHelpers_Format_PlaintextViewHelper extends Tx_Fluid_Core_ViewHelper_AbstractViewHelper {
+class PlaintextViewHelper extends AbstractViewHelper {
 
 	/**
 	 * Trims content, then trims each line of content
@@ -45,7 +48,7 @@ class Tx_Vhs_ViewHelpers_Format_PlaintextViewHelper extends Tx_Fluid_Core_ViewHe
 	 * @return string
 	 */
 	public function render($content = NULL) {
-		if ($content === NULL) {
+		if (NULL === $content) {
 			$content = $this->renderChildren();
 		}
 		$content = trim($content);

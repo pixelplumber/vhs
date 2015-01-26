@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Math;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -33,11 +34,11 @@
  * arrays, each member of $a is summed against the corresponding
  * member in $b compared using index.
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
  * @subpackage ViewHelpers\Math
  */
-class Tx_Vhs_ViewHelpers_Math_SubtractViewHelper extends Tx_Vhs_ViewHelpers_Math_AbstractMultipleMathViewHelper {
+class SubtractViewHelper extends AbstractMultipleMathViewHelper {
 
 	/**
 	 * @return void
@@ -55,7 +56,7 @@ class Tx_Vhs_ViewHelpers_Math_SubtractViewHelper extends Tx_Vhs_ViewHelpers_Math
 		$a = $this->getInlineArgument();
 		$b = $this->arguments['b'];
 		$aIsIterable = $this->assertIsArrayOrIterator($a);
-		if ($aIsIterable && $b === NULL) {
+		if (TRUE === $aIsIterable && NULL === $b) {
 			$a = $this->convertTraversableToArray($a);
 			return -array_sum($a);
 		}

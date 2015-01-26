@@ -1,8 +1,10 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Render;
+
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -35,11 +37,11 @@
  * rendering this inline code will be destroyed after
  * sub-rendering is finished.
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
  * @subpackage ViewHelpers\Render
  */
-class Tx_Vhs_ViewHelpers_Render_InlineViewHelper extends Tx_Vhs_ViewHelpers_Render_AbstractRenderViewHelper {
+class InlineViewHelper extends AbstractRenderViewHelper {
 
 	/**
 	 * Initialize arguments
@@ -60,7 +62,7 @@ class Tx_Vhs_ViewHelpers_Render_InlineViewHelper extends Tx_Vhs_ViewHelpers_Rend
 	 * @return string
 	 */
 	public function render($content = NULL) {
-		if ($content === NULL) {
+		if (NULL === $content) {
 			$content = $this->renderChildren();
 		}
 		$namespaces = $this->getPreparedNamespaces();

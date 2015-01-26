@@ -1,8 +1,10 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Once;
+
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -22,16 +24,17 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use TYPO3\CMS\Fluid\Core\ViewHelper\AbstractConditionViewHelper;
 
 /**
  * Base class for "Render Once"-style ViewHelpers: session, cookie,
  * request, template variable set, ViewHelper variable set etc.
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
  * @subpackage ViewHelpers\Once
  */
-abstract class Tx_Vhs_ViewHelpers_Once_AbstractOnceViewHelper extends Tx_Fluid_Core_ViewHelper_AbstractConditionViewHelper {
+abstract class AbstractOnceViewHelper extends AbstractConditionViewHelper {
 
 	/**
 	 * Standard storage - static variable meaning uniqueness of $identifier
@@ -64,7 +67,7 @@ abstract class Tx_Vhs_ViewHelpers_Once_AbstractOnceViewHelper extends Tx_Fluid_C
 	public function render() {
 		$this->removeIfExpired();
 		$evaluation = $this->assertShouldSkip();
-		if ($evaluation === FALSE) {
+		if (FALSE === $evaluation) {
 			$content = $this->renderThenChild();
 		} else {
 			$content = $this->renderElseChild();
@@ -77,7 +80,7 @@ abstract class Tx_Vhs_ViewHelpers_Once_AbstractOnceViewHelper extends Tx_Fluid_C
 	 * @return string
 	 */
 	protected function getIdentifier() {
-		if (isset($this->arguments['identifier']) === TRUE) {
+		if (TRUE === isset($this->arguments['identifier'])) {
 			return $this->arguments['identifier'];
 		}
 		return get_class($this);
@@ -88,7 +91,7 @@ abstract class Tx_Vhs_ViewHelpers_Once_AbstractOnceViewHelper extends Tx_Fluid_C
 	 */
 	protected function storeIdentifier() {
 		$identifier = $this->getIdentifier();
-		if (isset(self::$identifiers[$identifier]) === FALSE) {
+		if (FALSE === isset(self::$identifiers[$identifier])) {
 			self::$identifiers[$identifier] = time();
 		}
 	}
@@ -98,7 +101,7 @@ abstract class Tx_Vhs_ViewHelpers_Once_AbstractOnceViewHelper extends Tx_Fluid_C
 	 */
 	protected function removeIfExpired() {
 		$identifier = $this->getIdentifier();
-		if (isset(self::$identifiers[$identifier]) === TRUE && self::$identifiers[$identifier] <= time() - $this->arguments['ttl']) {
+		if (TRUE === isset(self::$identifiers[$identifier]) && self::$identifiers[$identifier] <= time() - $this->arguments['ttl']) {
 			unset(self::$identifiers[$identifier]);
 		}
 	}
@@ -108,7 +111,24 @@ abstract class Tx_Vhs_ViewHelpers_Once_AbstractOnceViewHelper extends Tx_Fluid_C
 	 */
 	protected function assertShouldSkip() {
 		$identifier = $this->getIdentifier();
-		return (isset(self::$identifiers[$identifier]) === TRUE);
+		return (TRUE === isset(self::$identifiers[$identifier]));
+	}
+
+	/**
+	 * Override: forcibly disables page caching - a TRUE condition
+	 * in this ViewHelper means page content would be depending on
+	 * the current visitor's session/cookie/auth etc.
+	 *
+	 * Returns value of "then" attribute.
+	 * If then attribute is not set, iterates through child nodes and renders ThenViewHelper.
+	 * If then attribute is not set and no ThenViewHelper and no ElseViewHelper is found, all child nodes are rendered
+	 *
+	 * @return string rendered ThenViewHelper or contents of <f:if> if no ThenViewHelper was found
+	 * @api
+	 */
+	protected function renderThenChild() {
+		$GLOBALS['TSFE']->no_cache = 1;
+		return parent::renderThenChild();
 	}
 
 }

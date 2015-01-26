@@ -1,8 +1,10 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Iterator;
+
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -22,16 +24,17 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use FluidTYPO3\Vhs\ViewHelpers\Condition\Iterator\ContainsViewHelper;
 
 /**
  * Searches $haystack for index of $needle, returns -1 if $needle
  * is not in $haystack
  *
- * @author Claus Due, Wildside A/S
+ * @author Claus Due
  * @package Vhs
  * @subpackage ViewHelpers\Iterator
  */
-class Tx_Vhs_ViewHelpers_Iterator_IndexOfViewHelper extends Tx_Vhs_ViewHelpers_Iterator_ContainsViewHelper {
+class IndexOfViewHelper extends ContainsViewHelper {
 
 	/**
 	 * Render method
@@ -40,10 +43,10 @@ class Tx_Vhs_ViewHelpers_Iterator_IndexOfViewHelper extends Tx_Vhs_ViewHelpers_I
 	 */
 	public function render() {
 		parent::render();
-		if ($this->evaluation !== FALSE) {
+		if (FALSE !== $this->evaluation) {
 			return intval($this->evaluation);
 		}
-		return - 1;
+		return -1;
 	}
 
 }

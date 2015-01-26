@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Math;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -34,11 +35,11 @@
  * $b is not provided or NULL, $a is gracefully returned as an
  * average value of itself.
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
  * @subpackage ViewHelpers\Math
  */
-class Tx_Vhs_ViewHelpers_Math_AverageViewHelper extends Tx_Vhs_ViewHelpers_Math_AbstractMultipleMathViewHelper {
+class AverageViewHelper extends AbstractMultipleMathViewHelper {
 
 	/**
 	 * @return void
@@ -57,18 +58,18 @@ class Tx_Vhs_ViewHelpers_Math_AverageViewHelper extends Tx_Vhs_ViewHelpers_Math_
 		$b = $this->arguments['b'];
 		$aIsIterable = $this->assertIsArrayOrIterator($a);
 		$bIsIterable = $this->assertIsArrayOrIterator($b);
-		if ($aIsIterable && $b === NULL) {
+		if (TRUE === $aIsIterable && NULL === $b) {
 			$a = $this->convertTraversableToArray($a);
 			$sum = array_sum($a);
 			$distribution = count($a);
 			return $sum / $distribution;
-		} elseif ($aIsIterable && $bIsIterable === FALSE) {
+		} elseif (TRUE === $aIsIterable && FALSE === $bIsIterable) {
 			$a = $this->convertTraversableToArray($a);
 			foreach ($a as $index => $value) {
 				$a[$index] = $this->calculateAction($value, $b);
 			}
 			return $a;
-		} elseif ($a && $b === NULL) {
+		} elseif (TRUE === isset($a) && NULL === $b) {
 			return $a;
 		}
 		return $this->calculate($a, $b);

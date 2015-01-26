@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Media;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2013 Björn Fromme <fromme@dreipunktnull.com>, dreipunktnull
+ *  (c) 2014 Björn Fromme <fromme@dreipunktnull.com>, dreipunktnull
  *
  *  All rights reserved
  *
@@ -22,6 +23,7 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  * ************************************************************* */
+use TYPO3\CMS\Fluid\Core\ViewHelper\AbstractTagBasedViewHelper;
 
 /**
  * Renders HTML code to embed a Spotify play button
@@ -30,12 +32,12 @@
  * @package Vhs
  * @subpackage ViewHelpers\Media
  */
-class Tx_Vhs_ViewHelpers_Media_SpotifyViewHelper extends Tx_Fluid_Core_ViewHelper_AbstractTagBasedViewHelper {
+class SpotifyViewHelper extends AbstractTagBasedViewHelper {
 
 	/**
 	 * Play button base url
 	 */
-	const spotifyBaseUrl = 'https://embed.spotify.com/';
+	const SPOTIFY_BASEURL = 'https://embed.spotify.com/';
 
 	/**
 	 * @var string
@@ -67,13 +69,13 @@ class Tx_Vhs_ViewHelpers_Media_SpotifyViewHelper extends Tx_Fluid_Core_ViewHelpe
 		$width      = (integer) $this->arguments['width'];
 		$height     = (integer) $this->arguments['height'];
 
-		if (in_array($this->arguments['theme'], array('black', 'white'))) {
+		if (TRUE === in_array($this->arguments['theme'], array('black', 'white'))) {
 			$theme = $this->arguments['theme'];
 		} else {
 			$theme = 'black';
 		}
 
-		if (in_array($this->arguments['view'], array('coverart', 'list'))) {
+		if (TRUE === in_array($this->arguments['view'], array('coverart', 'list'))) {
 			$view = $this->arguments['view'];
 		} else {
 			$view = 'list';
@@ -83,7 +85,7 @@ class Tx_Vhs_ViewHelpers_Media_SpotifyViewHelper extends Tx_Fluid_Core_ViewHelpe
 			$height = 80;
 		}
 
-		$src = self::spotifyBaseUrl . '?uri=' . $spotifyUri . '&theme=' . $theme . '&view=' . $view;
+		$src = self::SPOTIFY_BASEURL . '?uri=' . $spotifyUri . '&theme=' . $theme . '&view=' . $view;
 
 		$this->tag->forceClosingTag(TRUE);
 		$this->tag->addAttribute('src', $src);
@@ -94,4 +96,5 @@ class Tx_Vhs_ViewHelpers_Media_SpotifyViewHelper extends Tx_Fluid_Core_ViewHelpe
 
 		return $this->tag->render();
 	}
+
 }

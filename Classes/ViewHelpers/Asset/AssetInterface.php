@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Asset;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2013 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -27,11 +28,11 @@
  * Basic interface which must be implemented by every
  * possible Asset type.
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
  * @subpackage ViewHelpers\Asset
  */
-interface Tx_Vhs_ViewHelpers_Asset_AssetInterface {
+interface AssetInterface {
 
 	/**
 	 * Render method
@@ -100,7 +101,7 @@ interface Tx_Vhs_ViewHelpers_Asset_AssetInterface {
 	public function getDebugInformation();
 
 	/**
-	 * Returns TRUE of settings specify that the source of this
+	 * Returns TRUE if settings specify that the source of this
 	 * Asset should be rendered as if it were a Fluid template,
 	 * using variables from the "arguments" attribute
 	 *
@@ -119,7 +120,7 @@ interface Tx_Vhs_ViewHelpers_Asset_AssetInterface {
 
 	/**
 	 * Returns TRUE if the current Asset should be debugged as commanded
-	 * by settings in TypoScript an/ord ViewHelper attributes.
+	 * by settings in TypoScript and/or ViewHelper attributes.
 	 *
 	 * @return boolean
 	 */

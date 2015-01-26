@@ -1,8 +1,10 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Iterator;
+
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -22,15 +24,16 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use TYPO3\CMS\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
  * Returns the first element of $haystack
  *
- * @author Claus Due, Wildside A/S
+ * @author Claus Due
  * @package Vhs
  * @subpackage ViewHelpers\Iterator
  */
-class Tx_Vhs_ViewHelpers_Iterator_FirstViewHelper extends Tx_Vhs_ViewHelpers_Iterator_ContainsViewHelper {
+class FirstViewHelper extends AbstractViewHelper {
 
 	/**
 	 * Initialize arguments
@@ -38,19 +41,26 @@ class Tx_Vhs_ViewHelpers_Iterator_FirstViewHelper extends Tx_Vhs_ViewHelpers_Ite
 	 * @return void
 	 */
 	public function initializeArguments() {
-		$this->registerArgument('haystack', 'mixed', 'Haystack in which to look for needle', TRUE);
+		$this->registerArgument('haystack', 'mixed', 'Haystack in which to look for needle', FALSE, NULL);
 	}
 
 	/**
 	 * Render method
 	 *
-	 * @return string
+	 * @throws \Exception
+	 * @return mixed|NULL
 	 */
 	public function render() {
 		$haystack = $this->arguments['haystack'];
-		if (is_array($haystack) === FALSE && $haystack instanceof Iterator === FALSE && is_null($haystack) === FALSE) {
-			throw new Exception('Invalid argument supplied to Iterator/FirstViewHelper - expected array, Iterator or NULL but got ' .
+		if (NULL === $haystack) {
+			$haystack = $this->renderChildren();
+		}
+		if (FALSE === is_array($haystack) && FALSE === $haystack instanceof \Iterator && FALSE === is_null($haystack)) {
+			throw new \TYPO3\CMS\Fluid\Core\ViewHelper\Exception('Invalid argument supplied to Iterator/FirstViewHelper - expected array, Iterator or NULL but got ' .
 				gettype($haystack), 1351958398);
+		}
+		if (NULL === $haystack) {
+			return NULL;
 		}
 		foreach ($haystack as $needle) {
 			return $needle;

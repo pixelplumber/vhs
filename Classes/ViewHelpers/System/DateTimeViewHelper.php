@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\System;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -23,23 +24,25 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  * ************************************************************* */
 
+use TYPO3\CMS\Fluid\Core\ViewHelper\AbstractViewHelper;
+
 /**
  * ### System: DateTime
  *
  * Returns the current system UNIX timestamp as DateTime.
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
  * @subpackage ViewHelpers\System
  */
-class Tx_Vhs_ViewHelpers_System_DateTimeViewHelper extends Tx_Fluid_Core_ViewHelper_AbstractViewHelper {
+class DateTimeViewHelper extends AbstractViewHelper {
 
 	/**
-	 * @return DateTime
+	 * @return \DateTime
 	 */
 	public function render() {
 		$now = time();
-		$dateTime = DateTime::createFromFormat('U', $now);
+		$dateTime = \DateTime::createFromFormat('U', $now);
 		return $dateTime;
 	}
 

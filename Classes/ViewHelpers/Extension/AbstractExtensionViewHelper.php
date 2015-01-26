@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Extension;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -22,21 +23,23 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
  * Base class: Extension ViewHelpers
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
- * @subpackage ViewHelpers\Extension\Path
+ * @subpackage ViewHelpers\Extension
  */
-abstract class Tx_Vhs_ViewHelpers_Extension_AbstractExtensionViewHelper extends Tx_Fluid_Core_ViewHelper_AbstractViewHelper {
+abstract class AbstractExtensionViewHelper extends AbstractViewHelper {
 
 	/**
 	 * @return void
 	 */
 	public function initializeArguments() {
-		$this->registerArgument('extensionName', 'string', 'Name, in UpperCamelCase, of the extension to be checked', TRUE, NULL, TRUE);
+		$this->registerArgument('extensionName', 'string', 'Name, in UpperCamelCase, of the extension to be checked', FALSE, NULL, TRUE);
 	}
 
 	/**
@@ -44,14 +47,23 @@ abstract class Tx_Vhs_ViewHelpers_Extension_AbstractExtensionViewHelper extends 
 	 */
 	protected function getExtensionKey() {
 		$extensionName = $this->getExtensionName();
-		return t3lib_div::camelCaseToLowerCaseUnderscored($extensionName);
+		return GeneralUtility::camelCaseToLowerCaseUnderscored($extensionName);
 	}
 
 	/**
+	 * @throws \RuntimeException
 	 * @return mixed
 	 */
 	protected function getExtensionName() {
-		return $this->arguments['extensionName'];
+		if (TRUE === isset($this->arguments['extensionName']) && FALSE === empty($this->arguments['extensionName'])) {
+			return $this->arguments['extensionName'];
+		}
+		$request = $this->controllerContext->getRequest();
+		$extensionName = $request->getControllerExtensionName();
+		if (TRUE === empty($extensionName)) {
+			throw new \RuntimeException('Unable to read extension name from ControllerContext and value not manually specified', 1364167519);
+		}
+		return $extensionName;
 	}
 
 }

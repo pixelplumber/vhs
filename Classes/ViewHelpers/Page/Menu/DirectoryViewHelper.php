@@ -1,8 +1,10 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Page\Menu;
+
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2013 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -38,7 +40,12 @@
  * @package Vhs
  * @subpackage ViewHelpers\Page
  */
-class Tx_Vhs_ViewHelpers_Page_Menu_DirectoryViewHelper extends Tx_Vhs_ViewHelpers_Page_Menu_AbstractMenuViewHelper {
+class DirectoryViewHelper extends AbstractMenuViewHelper {
+
+	/**
+	 * @var array
+	 */
+	protected $backups = array('menu');
 
 	/**
 	 * @return void
@@ -55,21 +62,19 @@ class Tx_Vhs_ViewHelpers_Page_Menu_DirectoryViewHelper extends Tx_Vhs_ViewHelper
 	 */
 	public function render() {
 		$pages = $this->processPagesArgument();
-		if (NULL === $pages) {
+		if (0 === count($pages)) {
 			return;
 		}
 		$menuData = array();
-		$rootLineData = $this->pageSelect->getRootLine($GLOBALS['TSFE']->id);
+		$rootLineData = $this->pageSelect->getRootLine();
 		foreach ($pages as $pageUid) {
-			$menuData = array_merge($menuData, $this->pageSelect->getMenu($pageUid));
+			$menuData = array_merge($menuData, $this->getMenu($pageUid));
 		}
 		$menu = $this->parseMenu($menuData, $rootLineData);
-		$rootLine = $this->parseMenu($rootLineData, $rootLineData);
 		$this->backupVariables();
-		$this->templateVariableContainer->add('menu', $menu);
-		$content = $this->renderChildren();
-		$this->templateVariableContainer->remove('menu');
-		$output = $this->renderContent($menu, $content);
+		$this->templateVariableContainer->add($this->arguments['as'], $menu);
+		$output = $this->renderContent($menu);
+		$this->templateVariableContainer->remove($this->arguments['as']);
 		$this->restoreVariables();
 		return $output;
 	}

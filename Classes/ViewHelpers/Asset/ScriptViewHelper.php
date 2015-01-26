@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Asset;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2013 Claus Due, Wildside A/S <claus@wildside.dk>
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -30,9 +31,9 @@
  * where to insert the Asset and how to treat it.
  *
  * @package Vhs
- * @subpackage ViewHelpers
+ * @subpackage ViewHelpers\Asset
  */
-class Tx_Vhs_ViewHelpers_Asset_ScriptViewHelper extends Tx_Vhs_ViewHelpers_Asset_AbstractAssetViewHelper {
+class ScriptViewHelper extends AbstractAssetViewHelper {
 
 	/**
 	 * @var string

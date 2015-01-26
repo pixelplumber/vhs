@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Extension\Path;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -22,17 +23,27 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use FluidTYPO3\Vhs\ViewHelpers\Extension\AbstractExtensionViewHelper;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
 /**
  * ### Path: Relative Extension Resource Path
  *
  * Site Relative path to Extension Resources/Public folder.
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
  * @subpackage ViewHelpers\Extension\Path
  */
-class Tx_Vhs_ViewHelpers_Extension_Path_ResourcesViewHelper extends Tx_Vhs_ViewHelpers_Extension_AbstractExtensionViewHelper {
+class ResourcesViewHelper extends AbstractExtensionViewHelper {
+
+	/**
+	 * @return void
+	 */
+	public function initializeArguments() {
+		parent::initializeArguments();
+		$this->registerArgument('path', 'string', 'Optional path to append after output of \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath');
+	}
 
 	/**
 	 * Render method
@@ -41,7 +52,8 @@ class Tx_Vhs_ViewHelpers_Extension_Path_ResourcesViewHelper extends Tx_Vhs_ViewH
 	 */
 	public function render() {
 		$extensionKey = $this->getExtensionKey();
-		return t3lib_extMgm::extRelPath($extensionKey) . 'Resources/Public/';
+		$path = TRUE === empty($this->arguments['path']) ? '' : $this->arguments['path'];
+		return ExtensionManagementUtility::extRelPath($extensionKey) . 'Resources/Public/' . $path;
 	}
 
 }

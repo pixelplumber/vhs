@@ -1,8 +1,10 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Page;
+
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -22,42 +24,60 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  * ************************************************************* */
+use FluidTYPO3\Vhs\ViewHelpers\Page\Menu\AbstractMenuViewHelper;
 
 /**
  * ViewHelper to make a breadcrumb link set from a pageUid, automatic or manual
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @author Björn Fromme <fromeme@dreipunktnull.com>, dreipunktnull
  * @package Vhs
  * @subpackage ViewHelpers\Page
  */
-class Tx_Vhs_ViewHelpers_Page_BreadCrumbViewHelper extends Tx_Vhs_ViewHelpers_Page_Menu_AbstractMenuViewHelper {
+class BreadCrumbViewHelper extends AbstractMenuViewHelper {
+
+	/**
+	 * @var array
+	 */
+	protected $backups = array('rootLine');
 
 	/**
 	 * @return void
 	 */
 	public function initializeArguments() {
 		parent::initializeArguments();
-		$this->registerArgument('pageUid', 'integer', 'Optional parent page UID to use as top level of menu. If left out will be detected from rootLine using $entryLevel', FALSE, NULL);
+		$this->registerArgument('pageUid', 'integer', 'Optional parent page UID to use as top level of menu. If left out will be detected from rootLine using $entryLevel.', FALSE, NULL);
+		$this->registerArgument('endLevel', 'integer', 'Optional deepest level of rendering. If left out all levels up to the current are rendered.', FALSE, NULL);
+		$this->overrideArgument('as', 'string', 'If used, stores the menu pages as an array in a variable named after this value and renders the tag content. If the tag content is empty automatic rendering is triggered.', FALSE, 'breadcrumb');
 	}
 
 	/**
 	 * @return string
 	 */
 	public function render() {
+		$this->backups = array($this->arguments['as']);
 		$pageUid = $this->arguments['pageUid'] > 0 ? $this->arguments['pageUid'] : $GLOBALS['TSFE']->id;
-		$rootLineData = $this->pageSelect->getRootLine($pageUid);
-		$rootLineData = array_reverse($rootLineData);
-		$rootLineData = array_slice($rootLineData, $this->arguments['entryLevel']);
+		$entryLevel = $this->arguments['entryLevel'];
+		$endLevel = $this->arguments['endLevel'];
+		$rawRootLineData = $this->pageSelect->getRootLine($pageUid);
+		$rawRootLineData = array_reverse($rawRootLineData);
+		$rootLineData = $rawRootLineData = array_slice($rawRootLineData, $entryLevel, $endLevel);
+		if (FALSE === (boolean) $this->arguments['showHiddenInMenu']) {
+			$rootLineData = array();
+			foreach ($rawRootLineData as $record) {
+				if (FALSE === (boolean) $record['nav_hide']) {
+					array_push($rootLineData, $record);
+				}
+			}
+		}
 		$rootLine = $this->parseMenu($rootLineData, $rootLineData);
-		if (count($rootLine) === 0) {
+		if (0 === count($rootLine)) {
 			return NULL;
 		}
 		$this->backupVariables();
-		$this->templateVariableContainer->add('rootLine', $rootLine);
-		$content = $this->renderChildren();
-		$this->templateVariableContainer->remove('rootLine');
-		$output = $this->renderContent($rootLine, $content);
+		$this->templateVariableContainer->add($this->arguments['as'], $rootLine);
+		$output = $this->renderContent($rootLine);
+		$this->templateVariableContainer->remove($this->arguments['as']);
 		$this->restoreVariables();
 		return $output;
 	}

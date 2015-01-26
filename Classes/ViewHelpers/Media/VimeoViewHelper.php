@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Media;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2013 Björn Fromme <fromme@dreipunktnull.com>, dreipunktnull
+ *  (c) 2014 Björn Fromme <fromme@dreipunktnull.com>, dreipunktnull
  *
  *  All rights reserved
  *
@@ -22,6 +23,7 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  * ************************************************************* */
+use TYPO3\CMS\Fluid\Core\ViewHelper\AbstractTagBasedViewHelper;
 
 /**
  * Renders HTML code to embed a video from Vimeo
@@ -30,12 +32,12 @@
  * @package Vhs
  * @subpackage ViewHelpers\Media
  */
-class Tx_Vhs_ViewHelpers_Media_VimeoViewHelper extends Tx_Fluid_Core_ViewHelper_AbstractTagBasedViewHelper {
+class VimeoViewHelper extends AbstractTagBasedViewHelper {
 
 	/**
 	 * Base URL for Vimeo video player
 	 */
-	const vimeoBaseUrl = 'http://player.vimeo.com/video/';
+	const VIMEO_BASEURL = '//player.vimeo.com/video/';
 
 	/**
 	 * @var string
@@ -49,9 +51,9 @@ class Tx_Vhs_ViewHelpers_Media_VimeoViewHelper extends Tx_Fluid_Core_ViewHelper_
 	 * @api
 	 */
 	public function initializeArguments() {
-		$this->registerArgument('videoId', 'string', 'YouTube id of the video to embed.', TRUE);
-		$this->registerArgument('width', 'int', 'Width of the video in pixels. Defaults to 640', FALSE, 640);
-		$this->registerArgument('height', 'int', 'Height of the video in pixels. Defaults to 480', FALSE, 480);
+		$this->registerArgument('videoId', 'string', 'Vimeo ID of the video to embed.', TRUE);
+		$this->registerArgument('width', 'integer', 'Width of the video in pixels. Defaults to 640 for 16:9 content.', FALSE, 640);
+		$this->registerArgument('height', 'integer', 'Height of the video in pixels. Defaults to 360 for 16:9 content.', FALSE, 360);
 		$this->registerArgument('title', 'boolean', 'Show the title on the video. Defaults to TRUE.', FALSE, TRUE);
 		$this->registerArgument('byline', 'boolean', 'Show the user’s byline on the video. Defaults to TRUE.', FALSE, TRUE);
 		$this->registerArgument('portrait', 'boolean', 'Show the user’s portrait on the video. Defaults to TRUE.', FALSE, TRUE);
@@ -72,7 +74,7 @@ class Tx_Vhs_ViewHelpers_Media_VimeoViewHelper extends Tx_Fluid_Core_ViewHelper_
 		$width   = $this->arguments['width'];
 		$height  = $this->arguments['height'];
 
-		$src = self::vimeoBaseUrl . $videoId . '?';
+		$src = self::VIMEO_BASEURL . $videoId . '?';
 
 		$queryParams = array(
 			'title='     . (integer) $this->arguments['title'],
@@ -98,4 +100,5 @@ class Tx_Vhs_ViewHelpers_Media_VimeoViewHelper extends Tx_Fluid_Core_ViewHelper_
 
 		return $this->tag->render();
 	}
+
 }

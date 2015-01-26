@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Math;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -28,11 +29,11 @@
  *
  * Performs pow($a, 1/3) - cubic or third root
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
  * @subpackage ViewHelpers\Math
  */
-class Tx_Vhs_ViewHelpers_Math_CubicRootViewHelper extends Tx_Vhs_ViewHelpers_Math_AbstractSingleMathViewHelper {
+class CubicRootViewHelper extends AbstractSingleMathViewHelper {
 
 	/**
 	 * @param mixed $a

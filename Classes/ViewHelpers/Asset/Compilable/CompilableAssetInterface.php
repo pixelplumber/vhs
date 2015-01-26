@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Asset\Compilable;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2013 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -30,11 +31,11 @@
  * associated AssetCompilerInterface implementation. The
  * association between CompilableAsset
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
- * @subpackage ViewHelpers\Asset
+ * @subpackage ViewHelpers\Asset\Compilable
  */
-interface Tx_Vhs_ViewHelpers_Asset_Compilable_CompilableAssetInterface extends Tx_Vhs_ViewHelpers_Asset_AssetInterface {
+interface CompilableAssetInterface extends \FluidTYPO3\Vhs\ViewHelpers\Asset\AssetInterface {
 
 	/**
 	 * @return string

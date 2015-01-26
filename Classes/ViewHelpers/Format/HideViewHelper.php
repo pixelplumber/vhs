@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Format;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -23,16 +24,18 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use TYPO3\CMS\Fluid\Core\ViewHelper\AbstractViewHelper;
+
 /**
  * Hides output from browser, but still renders tag content
  * which means any ViewHelper inside the tag content still
  * gets processed.
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
  * @subpackage ViewHelpers\Format
  */
-class Tx_Vhs_ViewHelpers_Format_HideViewHelper extends Tx_Fluid_Core_ViewHelper_AbstractViewHelper {
+class HideViewHelper extends AbstractViewHelper {
 
 	/**
 	 * Initialize
@@ -47,7 +50,7 @@ class Tx_Vhs_ViewHelpers_Format_HideViewHelper extends Tx_Fluid_Core_ViewHelper_
 	 * @return string
 	 */
 	public function render() {
-		if ($this->arguments['disabled'] === TRUE) {
+		if (TRUE === (boolean) $this->arguments['disabled']) {
 			return $this->renderChildren();
 		} else {
 			$this->renderChildren();

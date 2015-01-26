@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Media;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Björn Fromme <fromme@dreipunktnull.com>, dreipunktnull
+ *  (c) 2014 Björn Fromme <fromme@dreipunktnull.com>, dreipunktnull
  *
  *  All rights reserved
  *
@@ -22,18 +23,23 @@
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  * ************************************************************* */
+use FluidTYPO3\Vhs\ViewHelpers\AbstractViewHelperTest;
 
 /**
  * @author Björn Fromme <fromme@dreipunktnull.com>, dreipunktnull
  * @package Vhs
+ * @subpackage ViewHelpers\Media
  */
-class Tx_Vhs_ViewHelpers_Media_FilesViewHelperTest extends Tx_Extbase_Tests_Unit_BaseTestCase {
+class FilesViewHelperTest extends AbstractViewHelperTest {
 
 	/**
 	 * @var string
 	 */
 	protected $fixturesPath;
 
+	/**
+	 * Setup
+	 */
 	public function setUp() {
 		$this->fixturesPath = dirname(__FILE__) . '/../../../Fixtures/Files';
 	}
@@ -42,7 +48,7 @@ class Tx_Vhs_ViewHelpers_Media_FilesViewHelperTest extends Tx_Extbase_Tests_Unit
 	 * @test
 	 */
 	public function returnsEmtpyArrayWhenArgumentsAreNotSet() {
-		$viewHelper = $this->getMock('Tx_Vhs_ViewHelpers_Media_FilesViewHelper', array('renderChildren'));
+		$viewHelper = $this->getMock('FluidTYPO3\Vhs\ViewHelpers\Media\FilesViewHelper', array('renderChildren'));
 		$viewHelper->expects($this->once())->method('renderChildren')->will($this->returnValue(NULL));
 
 		$this->assertEquals(array(), $viewHelper->render());
@@ -52,7 +58,7 @@ class Tx_Vhs_ViewHelpers_Media_FilesViewHelperTest extends Tx_Extbase_Tests_Unit
 	 * @test
 	 */
 	public function returnsEmptyArrayWhenPathIsInaccessible() {
-		$viewHelper = $this->getMock('Tx_Vhs_ViewHelpers_Media_FilesViewHelper', array('renderChildren'));
+		$viewHelper = $this->getMock('FluidTYPO3\Vhs\ViewHelpers\Media\FilesViewHelper', array('renderChildren'));
 		$viewHelper->expects($this->once())->method('renderChildren')->will($this->returnValue('/this/path/hopefully/does/not/exist'));
 
 		$this->assertEquals(array(), $viewHelper->render());
@@ -62,7 +68,7 @@ class Tx_Vhs_ViewHelpers_Media_FilesViewHelperTest extends Tx_Extbase_Tests_Unit
 	 * @test
 	 */
 	public function returnsPopulatedArrayOfAllFoundFiles() {
-		$viewHelper = $this->getMock('Tx_Vhs_ViewHelpers_Media_FilesViewHelper', array('renderChildren'));
+		$viewHelper = $this->getMock('FluidTYPO3\Vhs\ViewHelpers\Media\FilesViewHelper', array('renderChildren'));
 		$viewHelper->expects($this->once())->method('renderChildren')->will($this->returnValue($this->fixturesPath));
 		$actualFiles = glob($this->fixturesPath . '/*');
 		$actualFilesCount = count($actualFiles);
@@ -74,7 +80,7 @@ class Tx_Vhs_ViewHelpers_Media_FilesViewHelperTest extends Tx_Extbase_Tests_Unit
 	 * @test
 	 */
 	public function returnsPopulatedArrayOfFilteredFiles() {
-		$viewHelper = $this->getMock('Tx_Vhs_ViewHelpers_Media_FilesViewHelper', array('renderChildren'));
+		$viewHelper = $this->getMock('FluidTYPO3\Vhs\ViewHelpers\Media\FilesViewHelper', array('renderChildren'));
 		$viewHelper->expects($this->once())->method('renderChildren')->will($this->returnValue($this->fixturesPath));
 		$viewHelper->setArguments(array('extensionList' => 'txt'));
 		$actualFiles = glob($this->fixturesPath . '/*.txt');

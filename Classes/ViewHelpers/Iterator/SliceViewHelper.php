@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Iterator;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -23,14 +24,18 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use FluidTYPO3\Vhs\Utility\ViewHelperUtility;
+use TYPO3\CMS\Fluid\Core\ViewHelper\AbstractViewHelper;
+use TYPO3\CMS\Fluid\Core\ViewHelper\Exception;
+
 /**
  * Slice an Iterator by $start and $length
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
  * @subpackage ViewHelpers\Iterator
  */
-class Tx_Vhs_ViewHelpers_Iterator_SliceViewHelper extends Tx_Fluid_Core_ViewHelper_AbstractViewHelper {
+class SliceViewHelper extends AbstractViewHelper {
 
 	/**
 	 * Render method
@@ -38,25 +43,23 @@ class Tx_Vhs_ViewHelpers_Iterator_SliceViewHelper extends Tx_Fluid_Core_ViewHelp
 	 * @param mixed $haystack
 	 * @param integer $start
 	 * @param integer $length
+	 * @param string $as
+	 * @throws \Exception
 	 * @return array
 	 */
-	public function render($haystack = NULL, $start = 0, $length = NULL) {
-		if ($haystack === NULL) {
+	public function render($haystack = NULL, $start = 0, $length = NULL, $as = NULL) {
+		if (NULL === $haystack) {
 			$haystack = $this->renderChildren();
 		}
-		if ($haystack instanceof Iterator) {
+		if (TRUE === $haystack instanceof \Traversable) {
 			$haystack = iterator_to_array($haystack, TRUE);
-		} elseif (is_array($haystack) !== TRUE) {
+		} elseif (FALSE === is_array($haystack)) {
 			throw new Exception('Cannot slice unsupported type: ' . gettype($haystack), 1353812601);
 		}
 		$output = array_slice($haystack, $start, $length, TRUE);
-		if ($this->arguments['as']) {
-			if ($this->templateVariableContainer->exists($this->arguments['as'])) {
-				$this->templateVariableContainer->remove($this->arguments['as']);
-			}
-			$this->templateVariableContainer->add($this->arguments['as'], $output);
-			$output = $this->renderChildren();
-			$this->templateVariableContainer->remove($this->arguments['as']);
+		if (NULL !== $as) {
+			$variables = array($as => $output);
+			$output = ViewHelperUtility::renderChildrenWithVariables($this, $this->templateVariableContainer, $variables);
 		}
 		return $output;
 	}

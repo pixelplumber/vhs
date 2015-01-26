@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Math;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Claus Due <claus@wildside.dk>, Wildside A/S
+ *  (c) 2014 Claus Due <claus@namelesscoder.net>
  *
  *  All rights reserved
  *
@@ -31,11 +32,11 @@
  * If both $a and $b are arrays, each member of $a is summed
  * against the corresponding member in $b compared using index.
  *
- * @author Claus Due <claus@wildside.dk>, Wildside A/S
+ * @author Claus Due <claus@namelesscoder.net>
  * @package Vhs
  * @subpackage ViewHelpers\Math
  */
-class Tx_Vhs_ViewHelpers_Math_DivisionViewHelper extends Tx_Vhs_ViewHelpers_Math_AbstractMultipleMathViewHelper {
+class DivisionViewHelper extends AbstractMultipleMathViewHelper {
 
 	/**
 	 * @param mixed $a
@@ -43,7 +44,7 @@ class Tx_Vhs_ViewHelpers_Math_DivisionViewHelper extends Tx_Vhs_ViewHelpers_Math
 	 * @return mixed
 	 */
 	protected function calculateAction($a, $b) {
-		return ($b <> 0 ? $a / $b : $a);
+		return (0 <> $b ? $a / $b : $a);
 	}
 
 }

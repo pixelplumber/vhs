@@ -1,8 +1,9 @@
 <?php
+namespace FluidTYPO3\Vhs\ViewHelpers\Format\Json;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2013 Björn Fromme <fromme@dreipunktnull.com>, dreipunktnull
+ *  (c) 2014 Björn Fromme <fromme@dreipunktnull.com>, dreipunktnull
  *
  *  All rights reserved
  *
@@ -23,17 +24,68 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  * ************************************************************* */
 
+use FluidTYPO3\Vhs\Tests\Fixtures\Domain\Model\Foo;
+use FluidTYPO3\Vhs\ViewHelpers\AbstractViewHelperTest;
+
 /**
+ * @protection on
  * @author Björn Fromme <fromme@dreipunktnull.com>, dreipunktnull
  * @package Vhs
  */
-class Tx_Vhs_ViewHelpers_Format_Json_EncodeViewHelperTest extends Tx_Extbase_Tests_Unit_BaseTestCase {
+class EncodeViewHelperTest extends AbstractViewHelperTest {
+
+	/**
+	 * @test
+	 */
+	public function encodesDateTime() {
+		$dateTime = \DateTime::createFromFormat('U', 86400);
+		$instance = $this->createInstance();
+		$test = $this->callInaccessibleMethod($instance, 'encodeValue', $dateTime, FALSE, TRUE, NULL, NULL);
+		$this->assertEquals(86400000, $test);
+	}
+
+	/**
+	 * @test
+	 */
+	public function encodesRecursiveDomainObject() {
+		/** @var Foo $object */
+		$object = $this->objectManager->get('FluidTYPO3\Vhs\Tests\Fixtures\Domain\Model\Foo');
+		$object->setFoo($object);
+		$instance = $this->createInstance();
+		$test = $this->callInaccessibleMethod($instance, 'encodeValue', $object, TRUE, TRUE, NULL, NULL);
+		$this->assertEquals('{"bar":"baz","children":[],"foo":null,"pid":null,"uid":null}', $test);
+	}
+
+	/**
+	 * @test
+	 */
+	public function encodesDateTimeWithFormat() {
+		$dateTime = \DateTime::createFromFormat('U', 86401);
+		$arguments = array(
+			'value' => array(
+				'date' => $dateTime,
+			),
+			'dateTimeFormat' => 'Y-m-d',
+		);
+		$test = $test = $this->executeViewHelper($arguments);
+		$this->assertEquals('{"date":"1970-01-02"}', $test);
+	}
+
+	/**
+	 * @test
+	 */
+	public function encodesTraversable() {
+		$traversable = $this->objectManager->get('TYPO3\CMS\Extbase\Persistence\ObjectStorage');
+		$instance = $this->createInstance();
+		$test = $this->callInaccessibleMethod($instance, 'encodeValue', $traversable, FALSE, TRUE, NULL, NULL);
+		$this->assertEquals('[]', $test);
+	}
 
 	/**
 	 * @test
 	 */
 	public function returnsEmptyJsonObjectForEmptyArguments() {
-		$viewHelper = $this->getMock('Tx_Vhs_ViewHelpers_Format_Json_EncodeViewHelper', array('renderChildren'));
+		$viewHelper = $this->getMock($this->getViewHelperClassName(), array('renderChildren'));
 		$viewHelper->expects($this->once())->method('renderChildren')->will($this->returnValue(NULL));
 
 		$this->assertEquals('{}', $viewHelper->render());
@@ -44,16 +96,19 @@ class Tx_Vhs_ViewHelpers_Format_Json_EncodeViewHelperTest extends Tx_Extbase_Tes
 	 */
 	public function returnsExpectedStringForProvidedArguments() {
 
+		$storage = $this->objectManager->get('TYPO3\CMS\Extbase\Persistence\ObjectStorage');
 		$fixture = array(
-			'foo'    => 'bar',
-			'bar'    => TRUE,
-			'baz'    => 1,
+			'foo' => 'bar',
+			'bar' => TRUE,
+			'baz' => 1,
 			'foobar' => NULL,
+			'date' => \DateTime::createFromFormat('U', 3216548),
+			'traversable' => $storage
 		);
 
-		$expected = '{"foo":"bar","bar":true,"baz":1,"foobar":null}';
+		$expected = '{"foo":"bar","bar":true,"baz":1,"foobar":null,"date":3216548000,"traversable":[]}';
 
-		$viewHelper = $this->getMock('Tx_Vhs_ViewHelpers_Format_Json_EncodeViewHelper', array('renderChildren'));
+		$viewHelper = $this->getMock($this->getViewHelperClassName(), array('renderChildren'));
 		$viewHelper->expects($this->once())->method('renderChildren')->will($this->returnValue($fixture));
 
 		$this->assertEquals($expected, $viewHelper->render());
@@ -63,10 +118,10 @@ class Tx_Vhs_ViewHelpers_Format_Json_EncodeViewHelperTest extends Tx_Extbase_Tes
 	 * @test
 	 */
 	public function throwsExceptionForInvalidArgument() {
-		$viewHelper = $this->getMock('Tx_Vhs_ViewHelpers_Format_Json_EncodeViewHelper', array('renderChildren'));
+		$viewHelper = $this->getMock($this->getViewHelperClassName(), array('renderChildren'));
 		$viewHelper->expects($this->once())->method('renderChildren')->will($this->returnValue("\xB1\x31"));
 
-		$this->setExpectedException('Tx_Fluid_Core_ViewHelper_Exception');
+		$this->setExpectedException('TYPO3\CMS\Fluid\Core\ViewHelper\Exception');
 		$this->assertEquals('null', $viewHelper->render());
 	}
 
@@ -75,33 +130,15 @@ class Tx_Vhs_ViewHelpers_Format_Json_EncodeViewHelperTest extends Tx_Extbase_Tes
 	 */
 	public function returnsJsConsumableTimestamps() {
 		$date = new \DateTime('now');
-		$jsTimestamp = $date->getTimestamp()*1000;
+		$jsTimestamp = $date->getTimestamp() * 1000;
 
 		$fixture = array('foo' => $date, 'bar' => array('baz' => $date));
 		$expected = sprintf('{"foo":%s,"bar":{"baz":%s}}', $jsTimestamp, $jsTimestamp);
 
-		$viewHelper = $this->getMock('Tx_Vhs_ViewHelpers_Format_Json_EncodeViewHelper', array('renderChildren'));
+		$viewHelper = $this->getMock($this->getViewHelperClassName(), array('renderChildren'));
 		$viewHelper->expects($this->once())->method('renderChildren')->will($this->returnValue($fixture));
 
 		$this->assertEquals($expected, $viewHelper->render());
 	}
 
-	/**
-	 * @test
-	 */
-	public function convertsDomainObjectsIntoAssocArrays() {
-		$foo1 = $this->objectManager->get('Tx_Vhs_Tests_Fixtures_Domain_Model_Foo');
-		$foo2 = $this->objectManager->get('Tx_Vhs_Tests_Fixtures_Domain_Model_Foo');
-		$foo3 = $this->objectManager->get('Tx_Vhs_Tests_Fixtures_Domain_Model_Foo');
-		$foo1->addChild($foo2);
-		$foo2->addChild($foo3);
-
-		$expectedRegex = '/\{"bar"\:"baz","children"\:\{"[a-f0-9]+"\:\{"bar"\:"baz","children"\:\{"[a-f0-9]+"\:\{"bar"\:"baz","children"\:\[\],"pid"\:null,"uid"\:null\}\},"pid"\:null,"uid"\:null\}\},"pid"\:null,"uid"\:null\}/';
-
-		$viewHelper = $this->getMock('Tx_Vhs_ViewHelpers_Format_Json_EncodeViewHelper', array('renderChildren'));
-		$viewHelper->expects($this->once())->method('renderChildren')->will($this->returnValue($foo1));
-
-
-		$this->assertRegexp($expectedRegex, $viewHelper->render());
-	}
 }
